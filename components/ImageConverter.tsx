@@ -240,62 +240,88 @@ export function ImageConverter() {
       )}
 
       {/* Preview Section */}
-      {(previewBefore || previewAfter) && (
+      {previewBefore && (
         <Card>
           <CardHeader>
             <CardTitle>Preview</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-lg">
-              {previewBefore && previewAfter ? (
-                <div className="relative h-full w-full">
-                  <div className="absolute inset-0">
-                    <Image
-                      src={previewBefore}
-                      alt="Before"
-                      fill
-                      className="object-contain"
+          <CardContent className="space-y-6">
+            {/* Before/After Comparison Slider */}
+            {previewAfter ? (
+              <div className="space-y-4">
+                <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-lg">
+                  <div className="relative h-full w-full">
+                    <div className="absolute inset-0">
+                      <Image
+                        src={previewBefore}
+                        alt="Before"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <div
+                      className="absolute inset-0 overflow-hidden"
+                      style={{
+                        clipPath: `inset(0 ${100 - sliderValue}% 0 0)`,
+                      }}
+                    >
+                      <Image
+                        src={previewAfter}
+                        alt="After"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <div
+                      className="bg-primary absolute inset-y-0 z-10 w-1 cursor-ew-resize"
+                      style={{ left: `${sliderValue}%` }}
+                    >
+                      <div className="bg-primary border-background absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 shadow-lg" />
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={sliderValue}
+                      onChange={(e) => setSliderValue(Number(e.target.value))}
+                      className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
                     />
                   </div>
-                  <div
-                    className="absolute inset-0 overflow-hidden"
-                    style={{ clipPath: `inset(0 ${100 - sliderValue}% 0 0)` }}
-                  >
-                    <Image
-                      src={previewAfter}
-                      alt="After"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <div
-                    className="bg-primary absolute inset-y-0 z-10 w-1 cursor-ew-resize"
-                    style={{ left: `${sliderValue}%` }}
-                  >
-                    <div className="bg-primary border-background absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 shadow-lg" />
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={sliderValue}
-                    onChange={(e) => setSliderValue(Number(e.target.value))}
-                    className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
-                  />
                 </div>
-              ) : previewBefore ? (
+                <div className="text-muted-foreground flex items-center justify-between text-sm">
+                  <span>Before</span>
+                  <span>After (Converted)</span>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-lg">
                 <Image
                   src={previewBefore}
-                  alt="Preview"
+                  alt="Original Image"
                   fill
                   className="object-contain"
                 />
-              ) : null}
-            </div>
-            {previewBefore && previewAfter && (
-              <div className="text-muted-foreground mt-4 flex items-center justify-between text-sm">
-                <span>Before</span>
-                <span>After</span>
+              </div>
+            )}
+
+            {/* Full Converted Image Preview */}
+            {previewAfter && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Converted Image</h3>
+                  <Badge variant="secondary">{format.toUpperCase()}</Badge>
+                </div>
+                <div className="bg-muted border-primary/20 relative aspect-video w-full overflow-hidden rounded-lg border-2">
+                  <Image
+                    src={previewAfter}
+                    alt="Converted Image Preview"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+                <p className="text-muted-foreground text-center text-xs">
+                  This is your converted image. Click Download to save it.
+                </p>
               </div>
             )}
           </CardContent>
