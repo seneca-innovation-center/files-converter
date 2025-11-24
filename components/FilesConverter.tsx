@@ -11,27 +11,35 @@ import {
   FileText,
   File,
   FileSpreadsheet,
-  Video,
-  Music,
   Archive,
   Upload,
   Loader2,
-  Sparkles,
+  FileDown,
+  Download,
 } from "lucide-react";
 
-const COMING_SOON_FORMATS = [
+const SUPPORTED_FORMATS = [
   { name: "PDF", icon: FileText, color: "bg-red-500" },
   { name: "Word", icon: FileText, color: "bg-blue-500" },
   { name: "Excel", icon: FileSpreadsheet, color: "bg-green-500" },
   { name: "PowerPoint", icon: File, color: "bg-orange-500" },
-  { name: "Video", icon: Video, color: "bg-purple-500" },
-  { name: "Audio", icon: Music, color: "bg-pink-500" },
   { name: "Archive", icon: Archive, color: "bg-yellow-500" },
   { name: "Text", icon: FileText, color: "bg-gray-500" },
 ];
 
+// Map display names to actual format strings
+const formatMap: Record<string, string> = {
+  word: "docx",
+  pdf: "pdf",
+  excel: "xlsx",
+  powerpoint: "pptx",
+  archive: "zip",
+  text: "txt",
+};
+
 export function FilesConverter() {
-  const { file, setFile, convertFile, isConverting } = useFilesStore();
+  const { file, setFile, convertFile, isConverting, resultUrl, reset } =
+    useFilesStore();
   const [selectedFormat, setSelectedFormat] = useState<string>("");
 
   const handleDrop = useCallback(
@@ -45,6 +53,11 @@ export function FilesConverter() {
     [setFile],
   );
 
+  const getTargetFormat = (displayName: string): string => {
+    const normalized = displayName.toLowerCase();
+    return formatMap[normalized] || normalized;
+  };
+
   const handleConvert = async () => {
     if (!file) {
       toast.error("Please select a file first");
@@ -57,35 +70,39 @@ export function FilesConverter() {
     }
 
     try {
+      const targetFormat = getTargetFormat(selectedFormat);
       await convertFile({
-        targetFormat: selectedFormat.toLowerCase(),
+        targetFormat,
       });
-      toast.info("Coming soon! This feature is under active development.", {
-        duration: 5000,
-      });
+      toast.success("File converted successfully!");
     } catch (err) {
-      toast.error(err.message || "Failed to convert file");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to convert file";
+      toast.error(errorMessage);
     }
+  };
+
+  const handleDownload = () => {
+    if (resultUrl && file) {
+      const link = document.createElement("a");
+      link.href = resultUrl;
+      const originalName = file.name.split(".")[0];
+      const targetFormat = getTargetFormat(selectedFormat);
+      link.download = `${originalName}.${targetFormat}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success("Download started");
+    }
+  };
+
+  const handleReset = () => {
+    reset();
+    setSelectedFormat("");
   };
 
   return (
     <div className="space-y-8">
-      {/* Coming Soon Banner */}
-      <Card className="border-primary/20 bg-primary/5">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-3">
-            <Sparkles className="text-primary h-5 w-5" />
-            <div>
-              <p className="font-semibold">Coming Soon</p>
-              <p className="text-muted-foreground text-sm">
-                This feature is under active development. We&apos;re working
-                hard to bring you the best file conversion experience!
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Upload Section */}
       <Card>
         <CardHeader>
@@ -113,11 +130,9 @@ export function FilesConverter() {
 
       {/* Supported Formats Grid */}
       <div>
-        <h3 className="mb-4 text-lg font-semibold">
-          Future Supported Conversions
-        </h3>
+        <h3 className="mb-4 text-lg font-semibold">Supported Formats</h3>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {COMING_SOON_FORMATS.map((format) => {
+          {SUPPORTED_FORMATS.map((format) => {
             const Icon = format.icon;
             const isSelected =
               selectedFormat.toLowerCase() === format.name.toLowerCase();
@@ -166,18 +181,43 @@ export function FilesConverter() {
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Convert File (Coming Soon)
+                <FileDown className="mr-2 h-4 w-4" />
+                Convert File
               </>
             )}
           </Button>
-          {file && selectedFormat && (
+          {file && selectedFormat && !resultUrl && (
             <p className="text-muted-foreground mt-2 text-center text-sm">
               Converting {file.name} to {selectedFormat} format
             </p>
           )}
         </CardContent>
       </Card>
+
+      {/* Download Section */}
+      {resultUrl && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">Conversion Complete!</p>
+                <p className="text-muted-foreground text-sm">
+                  Your file has been converted to {selectedFormat.toUpperCase()}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleDownload} variant="outline">
+                  <Download className="mr-2 h-4 w-4" />
+                  Download
+                </Button>
+                <Button onClick={handleReset} variant="ghost">
+                  Reset
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

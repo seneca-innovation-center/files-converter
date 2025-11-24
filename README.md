@@ -24,11 +24,11 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 - **Interactive Preview**: 3D model viewer with orbit controls
 - **Real-time Progress**: Track conversion progress
 
-### 📄 File Conversion (Coming Soon)
+### 📄 File Conversion
 
 - **Multiple Formats**: Support for PDF, Word, Excel, PowerPoint, Video, Audio, and more
-- **Beautiful UI**: Stunning "Coming Soon" page with format cards
-- **Upload Ready**: File upload system ready for future implementations
+- **Format Selection**: Beautiful grid interface for selecting target formats
+- **Real-time Progress**: Track upload and processing progress
 
 ## 🛠️ Tech Stack
 
@@ -149,13 +149,13 @@ files-converter/
 6. Preview the converted model in the 3D viewer
 7. Download the converted file
 
-### File Conversion (Coming Soon)
+### File Conversion
 
 1. Navigate to the **Files** tab
 2. Upload a file
 3. Select target format from the grid
 4. Click **Convert File**
-5. Currently shows "Coming Soon" message
+5. Download the converted file
 
 ## 🔌 Backend API
 
