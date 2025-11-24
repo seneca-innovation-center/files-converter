@@ -10,7 +10,7 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 
 ### 🖼️ Image Conversion
 
-- **Format Conversion**: Convert between PNG, JPEG, WebP, AVIF, TIFF, and BMP
+- **Format Conversion**: Convert between PNG, JPEG, WebP, AVIF, TIFF, BMP, and SVG
 - **AI Background Removal**: Remove backgrounds using advanced AI models
 - **Quality Control**: Adjust quality for JPEG and WebP formats
 - **Before/After Slider**: Interactive preview with drag-to-compare slider
@@ -26,9 +26,11 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 
 ### 📄 File Conversion
 
-- **Multiple Formats**: Support for PDF, Word, Excel, PowerPoint, Video, Audio, and more
+- **Multiple Formats**: Support for PDF, Word (DOCX), Excel (XLSX), PowerPoint (PPTX), Archive (ZIP), and Text (TXT)
 - **Format Selection**: Beautiful grid interface for selecting target formats
+- **Smart Format Mapping**: Automatic conversion from display names to actual format extensions (e.g., Word → DOCX)
 - **Real-time Progress**: Track upload and processing progress
+- **Download Ready**: Download converted files with correct extensions
 
 ## 🛠️ Tech Stack
 
@@ -132,7 +134,8 @@ files-converter/
 
 1. Navigate to the **Images** tab
 2. Upload an image file (drag & drop or click to browse)
-3. Select output format (PNG, JPEG, WebP, etc.)
+   - Supported input formats: PNG, JPEG, WebP, AVIF, TIFF, BMP, SVG
+3. Select output format (PNG, JPEG, WebP, AVIF, TIFF, BMP, SVG)
 4. Optionally enable background removal
 5. Adjust quality if needed (for JPEG/WebP)
 6. Click **Convert Image**
@@ -152,10 +155,16 @@ files-converter/
 ### File Conversion
 
 1. Navigate to the **Files** tab
-2. Upload a file
-3. Select target format from the grid
+2. Upload a file (max 200MB)
+3. Select target format from the grid:
+   - **PDF** - Portable Document Format
+   - **Word** - Converts to DOCX format
+   - **Excel** - Converts to XLSX format
+   - **PowerPoint** - Converts to PPTX format
+   - **Archive** - Converts to ZIP format
+   - **Text** - Converts to TXT format
 4. Click **Convert File**
-5. Download the converted file
+5. Download the converted file with the correct extension
 
 ## 🔌 Backend API
 
