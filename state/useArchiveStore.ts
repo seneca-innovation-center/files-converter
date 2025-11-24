@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { produce } from "immer";
 import { apiClient, createProgressHandler } from "@/lib/api/client";
 import type { CreateArchiveOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface ArchiveState {
   type: "archive";
@@ -153,8 +154,10 @@ export const useArchiveStore = create<ArchiveState & ArchiveActions>(
           }),
         );
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to create archive";
+        const errorMessage = extractErrorMessage(
+          error,
+          "Failed to create archive",
+        );
         set(
           produce((draft) => {
             draft.isCreating = false;

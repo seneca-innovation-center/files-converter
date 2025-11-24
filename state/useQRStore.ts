@@ -7,6 +7,7 @@ import type {
   GenerateQrOptions,
   GenerateBarcodeOptions,
 } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface QRState {
   type: "qr";
@@ -78,8 +79,10 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
         }),
       );
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to generate QR code";
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to generate QR code",
+      );
       set(
         produce((draft) => {
           draft.isGenerating = false;
@@ -116,8 +119,10 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
         }),
       );
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to generate barcode";
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to generate barcode",
+      );
       set(
         produce((draft) => {
           draft.isGenerating = false;

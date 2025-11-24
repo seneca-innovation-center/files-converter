@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { ConvertMediaOptions, ExtractAudioOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface MediaState {
   type: "media";
@@ -157,8 +158,10 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         }),
       );
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to convert media";
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to convert media",
+      );
       set(
         produce((draft) => {
           draft.isConverting = false;
@@ -234,8 +237,10 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         }),
       );
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to extract audio";
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to extract audio",
+      );
       set(
         produce((draft) => {
           draft.isConverting = false;

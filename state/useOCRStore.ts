@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { ExtractTextOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface OCRState {
   type: "ocr";
@@ -162,8 +163,7 @@ export const useOCRStore = create<OCRState & OCRActions>((set, get) => ({
         );
       }
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to extract text";
+      const errorMessage = extractErrorMessage(error, "Failed to extract text");
       set(
         produce((draft) => {
           draft.isExtracting = false;

@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { FormatCodeOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface CodeState {
   type: "code";
@@ -140,8 +141,7 @@ export const useCodeStore = create<CodeState & CodeActions>((set, get) => ({
         }),
       );
     } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to format code";
+      const errorMessage = extractErrorMessage(error, "Failed to format code");
       set(
         produce((draft) => {
           draft.isFormatting = false;

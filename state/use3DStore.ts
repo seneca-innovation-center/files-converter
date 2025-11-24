@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { Convert3DOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface ThreeDState {
   type: "3d";
@@ -177,14 +178,15 @@ export const use3DStore = create<ThreeDState & ThreeDActions>((set, get) => ({
           draft.processingProgress = 100;
         }),
       );
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to convert 3D model",
+      );
       set(
         produce((draft) => {
           draft.isConverting = false;
-          draft.error =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to convert 3D model";
+          draft.error = errorMessage;
         }),
       );
       throw error;

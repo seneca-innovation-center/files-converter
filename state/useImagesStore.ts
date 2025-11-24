@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { ConvertImageOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface ImageState {
   type: "image";
@@ -181,14 +182,15 @@ export const useImagesStore = create<ImageState & ImageActions>((set, get) => ({
           draft.processingProgress = 100;
         }),
       );
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to convert image",
+      );
       set(
         produce((draft) => {
           draft.isConverting = false;
-          draft.error =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to convert image";
+          draft.error = errorMessage;
         }),
       );
       throw error;

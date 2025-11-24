@@ -8,6 +8,7 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { ConvertMarkdownOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 export interface MarkdownState {
   type: "markdown";
@@ -158,8 +159,10 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
           }),
         );
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to convert markdown";
+        const errorMessage = extractErrorMessage(
+          error,
+          "Failed to convert markdown",
+        );
         set(
           produce((draft) => {
             draft.isConverting = false;
@@ -232,10 +235,10 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
           }),
         );
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "Failed to convert HTML to markdown";
+        const errorMessage = extractErrorMessage(
+          error,
+          "Failed to convert HTML to markdown",
+        );
         set(
           produce((draft) => {
             draft.isConverting = false;

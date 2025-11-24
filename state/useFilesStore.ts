@@ -8,6 +8,8 @@ import {
   createProgressHandler,
 } from "@/lib/api/client";
 import type { ConvertFileOptions } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
+
 export interface FilesState {
   type: "files";
   file: File | null;
@@ -175,14 +177,12 @@ export const useFilesStore = create<FilesState & FilesActions>((set, get) => ({
           draft.processingProgress = 100;
         }),
       );
-    } catch (error) {
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(error, "Failed to convert file");
       set(
         produce((draft) => {
           draft.isConverting = false;
-          draft.error =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to convert file";
+          draft.error = errorMessage;
         }),
       );
       throw error;

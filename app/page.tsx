@@ -9,11 +9,15 @@ import { OCRConverter } from "@/components/OCRConverter";
 import { CodeFormatter } from "@/components/CodeFormatter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitHubStarButton } from "@/components/GitHubStarButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Home() {
   return (
     <div className="bg-background min-h-screen">
-      <GitHubStarButton />
+      <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <ThemeToggle />
+        <GitHubStarButton />
+      </div>
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
