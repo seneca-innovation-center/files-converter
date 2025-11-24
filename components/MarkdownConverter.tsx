@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, FileText, Loader2, FileDown, Code } from "lucide-react";
 import type { MarkdownFormat } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const MARKDOWN_FORMATS: MarkdownFormat[] = ["html", "pdf"];
 
@@ -55,8 +56,10 @@ export function MarkdownConverter() {
         });
         toast.success("Markdown converted successfully!");
       } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to convert markdown";
+        const errorMessage = extractErrorMessage(
+          err,
+          "Failed to convert markdown",
+        );
         toast.error(errorMessage);
       }
     } else {
@@ -64,10 +67,10 @@ export function MarkdownConverter() {
         await htmlToMarkdown();
         toast.success("HTML converted to Markdown successfully!");
       } catch (err) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : "Failed to convert HTML to markdown";
+        const errorMessage = extractErrorMessage(
+          err,
+          "Failed to convert HTML to markdown",
+        );
         toast.error(errorMessage);
       }
     }

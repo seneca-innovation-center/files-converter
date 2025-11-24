@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dropzone } from "@/components/ui/dropzone";
 import { toast } from "sonner";
+import { extractErrorMessage } from "@/lib/utils";
 import {
   FileText,
   File,
@@ -76,8 +77,7 @@ export function FilesConverter() {
       });
       toast.success("File converted successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to convert file";
+      const errorMessage = extractErrorMessage(err, "Failed to convert file");
       toast.error(errorMessage);
     }
   };

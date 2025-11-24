@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Download, Scan, Loader2, FileText } from "lucide-react";
 import Image from "next/image";
 import type { OcrLanguage } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const OCR_LANGUAGES: { value: OcrLanguage; label: string }[] = [
   { value: "eng", label: "English" },
@@ -71,8 +72,7 @@ export function OCRConverter() {
       });
       toast.success("Text extracted successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to extract text";
+      const errorMessage = extractErrorMessage(err, "Failed to extract text");
       toast.error(errorMessage);
     }
   };

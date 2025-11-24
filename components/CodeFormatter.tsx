@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, Code, Loader2, FileDown, FileText } from "lucide-react";
 import type { CodeLanguage } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const CODE_LANGUAGES: CodeLanguage[] = [
   "javascript",
@@ -70,8 +71,7 @@ export function CodeFormatter() {
       });
       toast.success("Code formatted successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to format code";
+      const errorMessage = extractErrorMessage(err, "Failed to format code");
       toast.error(errorMessage);
     }
   };

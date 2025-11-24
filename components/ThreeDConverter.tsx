@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, Box, Zap, Loader2, Package } from "lucide-react";
 import type { ThreeDFormat } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const ModelViewer = dynamic(() => import("@/components/ModelViewer"), {
   ssr: false,
@@ -68,7 +69,11 @@ export function ThreeDConverter() {
       });
       toast.success("3D model converted successfully!");
     } catch (err) {
-      toast.error(err.message || "Failed to convert 3D model");
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to convert 3D model",
+      );
+      toast.error(errorMessage);
     }
   };
 

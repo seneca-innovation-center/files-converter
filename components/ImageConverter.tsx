@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Download, Image as ImageIcon, Sparkles, Loader2 } from "lucide-react";
 import Image from "next/image";
 import type { ImageFormat } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const IMAGE_FORMATS: ImageFormat[] = [
   "png",
@@ -69,7 +70,8 @@ export function ImageConverter() {
       });
       toast.success("Image converted successfully!");
     } catch (err) {
-      toast.error(err.message || "Failed to convert image");
+      const errorMessage = extractErrorMessage(err, "Failed to convert image");
+      toast.error(errorMessage);
     }
   };
 

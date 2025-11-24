@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, Video, Music, Loader2, Volume2 } from "lucide-react";
 import type { VideoFormat, AudioFormat } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const VIDEO_FORMATS: VideoFormat[] = [
   "mp4",
@@ -81,8 +82,7 @@ export function MediaConverter() {
       });
       toast.success("Media converted successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to convert media";
+      const errorMessage = extractErrorMessage(err, "Failed to convert media");
       toast.error(errorMessage);
     }
   };
@@ -99,8 +99,7 @@ export function MediaConverter() {
       });
       toast.success("Audio extracted successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to extract audio";
+      const errorMessage = extractErrorMessage(err, "Failed to extract audio");
       toast.error(errorMessage);
     }
   };

@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, Archive, Loader2, FileDown, X } from "lucide-react";
 import type { ArchiveFormat } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const ARCHIVE_FORMATS: ArchiveFormat[] = ["zip", "tar", "tar.gz"];
 
@@ -56,8 +57,7 @@ export function ArchivesConverter() {
       });
       toast.success("Archive created successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create archive";
+      const errorMessage = extractErrorMessage(err, "Failed to create archive");
       toast.error(errorMessage);
     }
   };

@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Download, QrCode, Barcode, Loader2, Sparkles } from "lucide-react";
 import Image from "next/image";
 import type { BarcodeFormat, QrErrorCorrectionLevel } from "@/lib/api/types";
+import { extractErrorMessage } from "@/lib/utils";
 
 const BARCODE_FORMATS: BarcodeFormat[] = [
   "CODE128",
@@ -53,8 +54,10 @@ export function QRCodeConverter() {
       });
       toast.success("QR code generated successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to generate QR code";
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to generate QR code",
+      );
       toast.error(errorMessage);
     }
   };
@@ -75,8 +78,10 @@ export function QRCodeConverter() {
       });
       toast.success("Barcode generated successfully!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to generate barcode";
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to generate barcode",
+      );
       toast.error(errorMessage);
     }
   };
