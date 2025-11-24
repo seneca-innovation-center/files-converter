@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  experimental: {
+    optimizeCss: false, // disable lightningcss
+  },
 };
 
 export default nextConfig;
