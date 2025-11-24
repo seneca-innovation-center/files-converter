@@ -1,5 +1,12 @@
 // Image conversion types
-export type ImageFormat = "jpeg" | "png" | "webp" | "avif" | "tiff" | "bmp";
+export type ImageFormat =
+  | "jpeg"
+  | "png"
+  | "webp"
+  | "avif"
+  | "tiff"
+  | "bmp"
+  | "svg";
 
 export interface ConvertImageOptions {
   format: ImageFormat;

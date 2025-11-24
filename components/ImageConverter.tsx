@@ -21,6 +21,7 @@ const IMAGE_FORMATS: ImageFormat[] = [
   "avif",
   "tiff",
   "bmp",
+  "svg",
 ];
 
 export function ImageConverter() {
@@ -115,6 +116,7 @@ export function ImageConverter() {
                   ".avif",
                   ".tiff",
                   ".bmp",
+                  ".svg",
                 ],
               }}
               maxSize={200 * 1024 * 1024}
