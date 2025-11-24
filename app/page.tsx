@@ -1,29 +1,59 @@
 import { ImageConverter } from "@/components/ImageConverter";
 import { ThreeDConverter } from "@/components/ThreeDConverter";
 import { FilesConverter } from "@/components/FilesConverter";
+import { MediaConverter } from "@/components/MediaConverter";
+import { QRCodeConverter } from "@/components/QRCodeConverter";
+import { ArchivesConverter } from "@/components/ArchivesConverter";
+import { MarkdownConverter } from "@/components/MarkdownConverter";
+import { OCRConverter } from "@/components/OCRConverter";
+import { CodeFormatter } from "@/components/CodeFormatter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitHubStarButton } from "@/components/GitHubStarButton";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background min-h-screen">
       <GitHubStarButton />
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
             Universal File Converter
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground md:text-xl">
-            Convert images, 3D models, and files with ease. Fast, reliable, and
-            free.
+          <p className="text-muted-foreground mt-4 text-lg md:text-xl">
+            Convert images, 3D models, files, media, and more. Fast, reliable,
+            and free.
           </p>
         </div>
 
         <Tabs defaultValue="images" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8">
-            <TabsTrigger value="images">Images</TabsTrigger>
-            <TabsTrigger value="3d">3D Models</TabsTrigger>
-            <TabsTrigger value="files">Files</TabsTrigger>
+          <TabsList className="mb-8 flex w-full overflow-x-auto">
+            <TabsTrigger value="images" className="shrink-0">
+              Images
+            </TabsTrigger>
+            <TabsTrigger value="3d" className="shrink-0">
+              3D Models
+            </TabsTrigger>
+            <TabsTrigger value="files" className="shrink-0">
+              Files
+            </TabsTrigger>
+            <TabsTrigger value="media" className="shrink-0">
+              Media
+            </TabsTrigger>
+            <TabsTrigger value="qr" className="shrink-0">
+              QR/Barcode
+            </TabsTrigger>
+            <TabsTrigger value="archives" className="shrink-0">
+              Archives
+            </TabsTrigger>
+            <TabsTrigger value="markdown" className="shrink-0">
+              Markdown
+            </TabsTrigger>
+            <TabsTrigger value="ocr" className="shrink-0">
+              OCR
+            </TabsTrigger>
+            <TabsTrigger value="code" className="shrink-0">
+              Code
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="images" className="mt-6">
@@ -36,6 +66,30 @@ export default function Home() {
 
           <TabsContent value="files" className="mt-6">
             <FilesConverter />
+          </TabsContent>
+
+          <TabsContent value="media" className="mt-6">
+            <MediaConverter />
+          </TabsContent>
+
+          <TabsContent value="qr" className="mt-6">
+            <QRCodeConverter />
+          </TabsContent>
+
+          <TabsContent value="archives" className="mt-6">
+            <ArchivesConverter />
+          </TabsContent>
+
+          <TabsContent value="markdown" className="mt-6">
+            <MarkdownConverter />
+          </TabsContent>
+
+          <TabsContent value="ocr" className="mt-6">
+            <OCRConverter />
+          </TabsContent>
+
+          <TabsContent value="code" className="mt-6">
+            <CodeFormatter />
           </TabsContent>
         </Tabs>
       </div>
