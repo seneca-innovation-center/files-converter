@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Download, Box, Zap, Loader2, Package } from "lucide-react";
 import type { ThreeDFormat } from "@/lib/api/types";
-import { extractErrorMessage } from "@/lib/utils";
+import { extractErrorMessage, getFileExtension } from "@/lib/utils";
 
 const ModelViewer = dynamic(() => import("@/components/ModelViewer"), {
   ssr: false,
@@ -252,6 +252,13 @@ export function ThreeDConverter() {
                 <ModelViewer
                   src={previewAfter || previewBefore || ""}
                   alt="3D Model Preview"
+                  format={
+                    previewAfter
+                      ? format
+                      : file
+                        ? getFileExtension(file.name)
+                        : undefined
+                  }
                 />
               </Suspense>
             </div>
