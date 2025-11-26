@@ -61,6 +61,11 @@ export interface ExtractAudioOptions {
   format: "mp3" | "wav" | "aac" | "flac";
 }
 
+export interface TranscribeVideoOptions {
+  language?: string; // Language code (e.g., 'en', 'fr', 'es') - optional, auto-detects
+  outputFormat?: "txt" | "srt" | "vtt" | "json"; // Output format (default: 'txt')
+}
+
 // QR Code & Barcode types
 export type QrErrorCorrectionLevel = "L" | "M" | "Q" | "H";
 
