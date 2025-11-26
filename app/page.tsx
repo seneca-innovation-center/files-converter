@@ -7,6 +7,10 @@ import { ArchivesConverter } from "@/components/ArchivesConverter";
 import { MarkdownConverter } from "@/components/MarkdownConverter";
 import { OCRConverter } from "@/components/OCRConverter";
 import { CodeFormatter } from "@/components/CodeFormatter";
+import { PdfOperations } from "@/components/PdfOperations";
+import { ExcelOperations } from "@/components/ExcelOperations";
+import { PresentationsConverter } from "@/components/PresentationsConverter";
+import { EbooksConverter } from "@/components/EbooksConverter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitHubStarButton } from "@/components/GitHubStarButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -40,6 +44,18 @@ export default function Home() {
             <TabsTrigger value="files" className="shrink-0">
               Files
             </TabsTrigger>
+            <TabsTrigger value="pdf" className="shrink-0">
+              PDF
+            </TabsTrigger>
+            <TabsTrigger value="excel" className="shrink-0">
+              Excel
+            </TabsTrigger>
+            <TabsTrigger value="presentations" className="shrink-0">
+              Presentations
+            </TabsTrigger>
+            <TabsTrigger value="ebooks" className="shrink-0">
+              Ebooks
+            </TabsTrigger>
             <TabsTrigger value="media" className="shrink-0">
               Media
             </TabsTrigger>
@@ -70,6 +86,22 @@ export default function Home() {
 
           <TabsContent value="files" className="mt-6">
             <FilesConverter />
+          </TabsContent>
+
+          <TabsContent value="pdf" className="mt-6">
+            <PdfOperations />
+          </TabsContent>
+
+          <TabsContent value="excel" className="mt-6">
+            <ExcelOperations />
+          </TabsContent>
+
+          <TabsContent value="presentations" className="mt-6">
+            <PresentationsConverter />
+          </TabsContent>
+
+          <TabsContent value="ebooks" className="mt-6">
+            <EbooksConverter />
           </TabsContent>
 
           <TabsContent value="media" className="mt-6">

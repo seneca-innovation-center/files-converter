@@ -23,7 +23,15 @@ const ModelViewer = dynamic(() => import("@/components/ModelViewer"), {
   ),
 });
 
-const THREE_D_FORMATS: ThreeDFormat[] = ["glb", "obj", "usdz"];
+const THREE_D_FORMATS: ThreeDFormat[] = [
+  "glb",
+  "gltf",
+  "obj",
+  "usdz",
+  "fbx",
+  "stl",
+  "ply",
+];
 
 export function ThreeDConverter() {
   const {
@@ -37,12 +45,17 @@ export function ThreeDConverter() {
     error,
     setFile,
     convert3D,
+    extract3DData,
     reset,
   } = use3DStore();
 
   const [format, setFormat] = useState<ThreeDFormat>("glb");
   const [optimize, setOptimize] = useState(false);
   const [compress, setCompress] = useState(false);
+  const [extractType, setExtractType] = useState<
+    "textures" | "animations" | "materials" | null
+  >(null);
+  const [extractedData, setExtractedData] = useState<string | null>(null);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -89,11 +102,37 @@ export function ThreeDConverter() {
     }
   };
 
+  const handleExtract = async () => {
+    if (!file) {
+      toast.error("Please select a 3D model first");
+      return;
+    }
+
+    if (!extractType) {
+      toast.error("Please select an extraction type");
+      return;
+    }
+
+    try {
+      const data = await extract3DData({ extractType });
+      setExtractedData(data);
+      toast.success("3D data extracted successfully!");
+    } catch (err) {
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to extract 3D data",
+      );
+      toast.error(errorMessage);
+    }
+  };
+
   const handleReset = () => {
     reset();
     setFormat("glb");
     setOptimize(false);
     setCompress(false);
+    setExtractType(null);
+    setExtractedData(null);
   };
 
   return (
@@ -111,8 +150,23 @@ export function ThreeDConverter() {
             <Dropzone
               onDrop={handleDrop}
               accept={{
-                "model/*": [".glb", ".gltf", ".obj", ".usdz"],
-                "application/octet-stream": [".glb", ".gltf", ".obj"],
+                "model/*": [
+                  ".glb",
+                  ".gltf",
+                  ".obj",
+                  ".usdz",
+                  ".fbx",
+                  ".stl",
+                  ".ply",
+                ],
+                "application/octet-stream": [
+                  ".glb",
+                  ".gltf",
+                  ".obj",
+                  ".fbx",
+                  ".stl",
+                  ".ply",
+                ],
               }}
               maxSize={200 * 1024 * 1024}
               disabled={isConverting}
@@ -265,6 +319,80 @@ export function ThreeDConverter() {
           </CardContent>
         </Card>
       )}
+
+      {/* Extraction Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Extract 3D Data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Extraction Type</label>
+            <div className="flex flex-wrap gap-2">
+              {(["textures", "animations", "materials"] as const).map(
+                (type) => (
+                  <Badge
+                    key={type}
+                    variant={extractType === type ? "default" : "outline"}
+                    className="cursor-pointer capitalize"
+                    onClick={() => setExtractType(type)}
+                  >
+                    {type}
+                  </Badge>
+                ),
+              )}
+            </div>
+          </div>
+          <Button
+            onClick={handleExtract}
+            disabled={!file || !extractType || isConverting}
+            className="w-full"
+          >
+            {isConverting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Extracting...
+              </>
+            ) : (
+              <>
+                <Package className="mr-2 h-4 w-4" />
+                Extract Data
+              </>
+            )}
+          </Button>
+          {extractedData && (
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-medium">
+                Extracted Data (JSON)
+              </label>
+              <pre className="bg-muted max-h-[400px] overflow-auto rounded-md p-4 text-xs">
+                {extractedData}
+              </pre>
+              <Button
+                onClick={() => {
+                  const blob = new Blob([extractedData], {
+                    type: "application/json",
+                  });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement("a");
+                  link.href = url;
+                  link.download = `extracted-${extractType}.json`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+                  toast.success("Data downloaded");
+                }}
+                variant="outline"
+                size="sm"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download JSON
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Download Section */}
       {resultUrl && (
