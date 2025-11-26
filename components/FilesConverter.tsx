@@ -12,7 +12,6 @@ import {
   FileText,
   File,
   FileSpreadsheet,
-  Archive,
   Upload,
   Loader2,
   FileDown,
@@ -24,7 +23,6 @@ const SUPPORTED_FORMATS = [
   { name: "Word", icon: FileText, color: "bg-blue-500" },
   { name: "Excel", icon: FileSpreadsheet, color: "bg-green-500" },
   { name: "PowerPoint", icon: File, color: "bg-orange-500" },
-  { name: "Archive", icon: Archive, color: "bg-yellow-500" },
   { name: "Text", icon: FileText, color: "bg-gray-500" },
 ];
 
@@ -34,7 +32,6 @@ const formatMap: Record<string, string> = {
   pdf: "pdf",
   excel: "xlsx",
   powerpoint: "pptx",
-  archive: "zip",
   text: "txt",
 };
 

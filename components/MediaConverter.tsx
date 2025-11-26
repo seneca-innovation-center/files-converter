@@ -9,7 +9,17 @@ import { Badge } from "@/components/ui/badge";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Download, Video, Music, Loader2, Volume2 } from "lucide-react";
+import {
+  Download,
+  Video,
+  Music,
+  Loader2,
+  Volume2,
+  Image,
+  Scissors,
+  Film,
+  Subtitles,
+} from "lucide-react";
 import type { VideoFormat, AudioFormat } from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
 
@@ -41,10 +51,16 @@ export function MediaConverter() {
     setFile,
     convertMedia,
     extractAudio,
+    generateThumbnail,
+    trimVideo,
+    extractFrame,
+    handleSubtitles,
     reset,
   } = useMediaStore();
 
-  const [mode, setMode] = useState<"convert" | "extract">("convert");
+  const [mode, setMode] = useState<
+    "convert" | "extract" | "thumbnail" | "trim" | "frame" | "subtitles"
+  >("convert");
   const [targetFormat, setTargetFormat] = useState<string>("mp4");
   const [videoCodec, setVideoCodec] = useState<string>("libx264");
   const [audioCodec, setAudioCodec] = useState<string>("aac");
@@ -52,6 +68,26 @@ export function MediaConverter() {
   const [audioBitrate, setAudioBitrate] = useState<string>("192k");
   const [width, setWidth] = useState<number>(1280);
   const [height, setHeight] = useState<number>(720);
+  // Thumbnail options
+  const [thumbnailTime, setThumbnailTime] = useState<string>("0");
+  const [thumbnailFormat, setThumbnailFormat] = useState<"png" | "jpeg">("png");
+  // Trim options
+  const [startTime, setStartTime] = useState<string>("0");
+  const [endTime, setEndTime] = useState<string>("60");
+  const [trimTargetFormat, setTrimTargetFormat] = useState<string>("mp4");
+  // Frame extraction options
+  const [frameTime, setFrameTime] = useState<string>("0");
+  const [frameNumber, setFrameNumber] = useState<string>("");
+  const [frameFormat, setFrameFormat] = useState<"png" | "jpeg">("png");
+  // Subtitle options
+  const [subtitleOperation, setSubtitleOperation] = useState<
+    "extract" | "embed"
+  >("extract");
+  const [subtitleFile, setSubtitleFile] = useState<File | null>(null);
+  const [subtitleText, setSubtitleText] = useState<string>("");
+  const [subtitleFormat, setSubtitleFormat] = useState<"srt" | "vtt" | "ass">(
+    "srt",
+  );
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -109,7 +145,15 @@ export function MediaConverter() {
       const link = document.createElement("a");
       link.href = resultUrl;
       const originalName = file.name.split(".")[0];
-      link.download = `${originalName}.${targetFormat}`;
+      let extension = targetFormat;
+      if (mode === "thumbnail" || mode === "frame") {
+        extension = thumbnailFormat || frameFormat;
+      } else if (mode === "subtitles") {
+        extension = subtitleFormat;
+      } else if (mode === "trim") {
+        extension = trimTargetFormat || "mp4";
+      }
+      link.download = `${originalName}.${extension}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -117,10 +161,121 @@ export function MediaConverter() {
     }
   };
 
+  const handleThumbnail = async () => {
+    if (!file) {
+      toast.error("Please select a video file first");
+      return;
+    }
+
+    try {
+      await generateThumbnail({
+        time: thumbnailTime ? parseFloat(thumbnailTime) : undefined,
+        format: thumbnailFormat,
+      });
+      toast.success("Thumbnail generated successfully!");
+    } catch (err) {
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to generate thumbnail",
+      );
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleTrim = async () => {
+    if (!file) {
+      toast.error("Please select a video file first");
+      return;
+    }
+
+    if (!startTime || !endTime) {
+      toast.error("Please specify start and end times");
+      return;
+    }
+
+    try {
+      await trimVideo({
+        startTime: parseFloat(startTime),
+        endTime: parseFloat(endTime),
+        targetFormat: trimTargetFormat || undefined,
+      });
+      toast.success("Video trimmed successfully!");
+    } catch (err) {
+      const errorMessage = extractErrorMessage(err, "Failed to trim video");
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleExtractFrame = async () => {
+    if (!file) {
+      toast.error("Please select a video file first");
+      return;
+    }
+
+    if (!frameTime && !frameNumber) {
+      toast.error("Please specify time or frame number");
+      return;
+    }
+
+    try {
+      await extractFrame({
+        time: frameTime ? parseFloat(frameTime) : undefined,
+        frameNumber: frameNumber ? parseInt(frameNumber) : undefined,
+        format: frameFormat,
+      });
+      toast.success("Frame extracted successfully!");
+    } catch (err) {
+      const errorMessage = extractErrorMessage(err, "Failed to extract frame");
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleSubtitleOperation = async () => {
+    if (!file) {
+      toast.error("Please select a video file first");
+      return;
+    }
+
+    if (subtitleOperation === "embed" && !subtitleFile && !subtitleText) {
+      toast.error("Please provide subtitle file or text");
+      return;
+    }
+
+    try {
+      await handleSubtitles({
+        operation: subtitleOperation,
+        subtitleFile: subtitleFile || undefined,
+        subtitleText: subtitleText || undefined,
+        format: subtitleFormat,
+      });
+      toast.success(
+        `Subtitles ${subtitleOperation === "extract" ? "extracted" : "embedded"} successfully!`,
+      );
+    } catch (err) {
+      const errorMessage = extractErrorMessage(
+        err,
+        `Failed to ${subtitleOperation} subtitles`,
+      );
+      toast.error(errorMessage);
+    }
+  };
+
   const handleReset = () => {
     reset();
     setMode("convert");
     setTargetFormat("mp4");
+    setThumbnailTime("0");
+    setThumbnailFormat("png");
+    setStartTime("0");
+    setEndTime("60");
+    setTrimTargetFormat("mp4");
+    setFrameTime("0");
+    setFrameNumber("");
+    setFrameFormat("png");
+    setSubtitleOperation("extract");
+    setSubtitleFile(null);
+    setSubtitleText("");
+    setSubtitleFormat("srt");
   };
 
   return (
@@ -130,10 +285,14 @@ export function MediaConverter() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {mode === "convert" ? (
+              {mode === "convert" || mode === "trim" ? (
                 <Video className="h-5 w-5" />
-              ) : (
+              ) : mode === "extract" ? (
                 <Music className="h-5 w-5" />
+              ) : mode === "thumbnail" || mode === "frame" ? (
+                <Image className="h-5 w-5" />
+              ) : (
+                <Subtitles className="h-5 w-5" />
               )}
               Upload Media File
             </CardTitle>
@@ -165,23 +324,61 @@ export function MediaConverter() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Mode</label>
-              <div className="flex gap-2">
+              <label className="text-sm font-medium">Operation</label>
+              <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
                 <Button
                   variant={mode === "convert" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setMode("convert")}
+                  className="flex-col gap-1 py-3"
                 >
-                  <Video className="mr-2 h-4 w-4" />
-                  Convert
+                  <Video className="h-4 w-4" />
+                  <span className="text-xs">Convert</span>
                 </Button>
                 <Button
                   variant={mode === "extract" ? "default" : "outline"}
                   size="sm"
                   onClick={() => setMode("extract")}
+                  className="flex-col gap-1 py-3"
                 >
-                  <Volume2 className="mr-2 h-4 w-4" />
-                  Extract Audio
+                  <Volume2 className="h-4 w-4" />
+                  <span className="text-xs">Extract Audio</span>
+                </Button>
+                <Button
+                  variant={mode === "thumbnail" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMode("thumbnail")}
+                  className="flex-col gap-1 py-3"
+                >
+                  <Image className="h-4 w-4" />
+                  <span className="text-xs">Thumbnail</span>
+                </Button>
+                <Button
+                  variant={mode === "trim" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMode("trim")}
+                  className="flex-col gap-1 py-3"
+                >
+                  <Scissors className="h-4 w-4" />
+                  <span className="text-xs">Trim</span>
+                </Button>
+                <Button
+                  variant={mode === "frame" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMode("frame")}
+                  className="flex-col gap-1 py-3"
+                >
+                  <Film className="h-4 w-4" />
+                  <span className="text-xs">Extract Frame</span>
+                </Button>
+                <Button
+                  variant={mode === "subtitles" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMode("subtitles")}
+                  className="flex-col gap-1 py-3"
+                >
+                  <Subtitles className="h-4 w-4" />
+                  <span className="text-xs">Subtitles</span>
                 </Button>
               </div>
             </div>
@@ -278,8 +475,248 @@ export function MediaConverter() {
               </>
             )}
 
+            {/* Mode-specific options */}
+            {mode === "thumbnail" && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Time (seconds)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                        value={thumbnailTime}
+                        onChange={(e) => setThumbnailTime(e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Format</label>
+                      <div className="flex gap-2">
+                        <Button
+                          variant={
+                            thumbnailFormat === "png" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setThumbnailFormat("png")}
+                        >
+                          PNG
+                        </Button>
+                        <Button
+                          variant={
+                            thumbnailFormat === "jpeg" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setThumbnailFormat("jpeg")}
+                        >
+                          JPEG
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {mode === "trim" && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Start Time (seconds)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        End Time (seconds)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        placeholder="60"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Target Format (optional)
+                    </label>
+                    <input
+                      type="text"
+                      className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                      value={trimTargetFormat}
+                      onChange={(e) => setTrimTargetFormat(e.target.value)}
+                      placeholder="mp4"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {mode === "frame" && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Time (seconds)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                        value={frameTime}
+                        onChange={(e) => setFrameTime(e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">
+                        Or Frame Number
+                      </label>
+                      <input
+                        type="number"
+                        className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                        value={frameNumber}
+                        onChange={(e) => setFrameNumber(e.target.value)}
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Format</label>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={frameFormat === "png" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFrameFormat("png")}
+                      >
+                        PNG
+                      </Button>
+                      <Button
+                        variant={frameFormat === "jpeg" ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setFrameFormat("jpeg")}
+                      >
+                        JPEG
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {mode === "subtitles" && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Operation</label>
+                    <div className="flex gap-2">
+                      <Button
+                        variant={
+                          subtitleOperation === "extract"
+                            ? "default"
+                            : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setSubtitleOperation("extract")}
+                      >
+                        Extract
+                      </Button>
+                      <Button
+                        variant={
+                          subtitleOperation === "embed" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setSubtitleOperation("embed")}
+                      >
+                        Embed
+                      </Button>
+                    </div>
+                  </div>
+                  {subtitleOperation === "embed" && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Subtitle File (optional)
+                        </label>
+                        <input
+                          type="file"
+                          accept=".srt,.vtt,.ass"
+                          className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                          onChange={(e) =>
+                            setSubtitleFile(e.target.files?.[0] || null)
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">
+                          Or Subtitle Text
+                        </label>
+                        <textarea
+                          className="border-input bg-background min-h-[100px] w-full rounded-md border px-3 py-2 font-mono text-sm"
+                          value={subtitleText}
+                          onChange={(e) => setSubtitleText(e.target.value)}
+                          placeholder="1&#10;00:00:00,000 --> 00:00:05,000&#10;Subtitle text here"
+                        />
+                      </div>
+                    </>
+                  )}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Format</label>
+                    <div className="flex gap-2">
+                      {(["srt", "vtt", "ass"] as const).map((format) => (
+                        <Button
+                          key={format}
+                          variant={
+                            subtitleFormat === format ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setSubtitleFormat(format)}
+                          className="uppercase"
+                        >
+                          {format}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <Button
-              onClick={mode === "convert" ? handleConvert : handleExtractAudio}
+              onClick={
+                mode === "convert"
+                  ? handleConvert
+                  : mode === "extract"
+                    ? handleExtractAudio
+                    : mode === "thumbnail"
+                      ? handleThumbnail
+                      : mode === "trim"
+                        ? handleTrim
+                        : mode === "frame"
+                          ? handleExtractFrame
+                          : handleSubtitleOperation
+              }
               disabled={!file || isConverting}
               className="w-full"
             >
@@ -290,8 +727,16 @@ export function MediaConverter() {
                 </>
               ) : mode === "convert" ? (
                 "Convert Media"
-              ) : (
+              ) : mode === "extract" ? (
                 "Extract Audio"
+              ) : mode === "thumbnail" ? (
+                "Generate Thumbnail"
+              ) : mode === "trim" ? (
+                "Trim Video"
+              ) : mode === "frame" ? (
+                "Extract Frame"
+              ) : (
+                `${subtitleOperation === "extract" ? "Extract" : "Embed"} Subtitles`
               )}
             </Button>
           </CardContent>
@@ -331,17 +776,76 @@ export function MediaConverter() {
         </Card>
       )}
 
+      {/* Preview Section for Images */}
+      {resultUrl && (mode === "thumbnail" || mode === "frame") && (
+        <Card>
+          <CardHeader>
+            <CardTitle>
+              {mode === "thumbnail" ? "Thumbnail Preview" : "Frame Preview"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-lg border">
+              <img
+                src={resultUrl}
+                alt={mode === "thumbnail" ? "Thumbnail" : "Extracted frame"}
+                className="h-auto w-full rounded-lg"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Preview Section for Video/Audio */}
+      {resultUrl && (mode === "convert" || mode === "trim") && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Video Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <video
+              src={resultUrl}
+              controls
+              className="h-auto w-full rounded-lg"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </CardContent>
+        </Card>
+      )}
+
+      {resultUrl && mode === "extract" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Audio Preview</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <audio src={resultUrl} controls className="w-full">
+              Your browser does not support the audio tag.
+            </audio>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Download Section */}
       {resultUrl && (
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Conversion Complete!</p>
+                <p className="font-medium">Operation Complete!</p>
                 <p className="text-muted-foreground text-sm">
-                  Your media has been{" "}
-                  {mode === "convert" ? "converted" : "extracted"} to{" "}
-                  {targetFormat.toUpperCase()}
+                  {mode === "convert"
+                    ? `Your media has been converted to ${targetFormat.toUpperCase()}`
+                    : mode === "extract"
+                      ? `Audio extracted to ${targetFormat.toUpperCase()}`
+                      : mode === "thumbnail"
+                        ? "Thumbnail generated successfully"
+                        : mode === "trim"
+                          ? "Video trimmed successfully"
+                          : mode === "frame"
+                            ? "Frame extracted successfully"
+                            : `Subtitles ${subtitleOperation === "extract" ? "extracted" : "embedded"} successfully`}
                 </p>
               </div>
               <div className="flex gap-2">

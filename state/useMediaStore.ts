@@ -7,7 +7,14 @@ import {
   createFormData,
   createProgressHandler,
 } from "@/lib/api/client";
-import type { ConvertMediaOptions, ExtractAudioOptions } from "@/lib/api/types";
+import type {
+  ConvertMediaOptions,
+  ExtractAudioOptions,
+  GenerateThumbnailOptions,
+  TrimVideoOptions,
+  ExtractFrameOptions,
+  SubtitleOperationOptions,
+} from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
 
 export interface MediaState {
@@ -29,6 +36,10 @@ interface MediaActions {
   setError: (error: string | null) => void;
   convertMedia: (options: ConvertMediaOptions) => Promise<void>;
   extractAudio: (options: ExtractAudioOptions) => Promise<void>;
+  generateThumbnail: (options: GenerateThumbnailOptions) => Promise<void>;
+  trimVideo: (options: TrimVideoOptions) => Promise<void>;
+  extractFrame: (options: ExtractFrameOptions) => Promise<void>;
+  handleSubtitles: (options: SubtitleOperationOptions) => Promise<void>;
   reset: () => void;
 }
 
@@ -240,6 +251,319 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       const errorMessage = extractErrorMessage(
         error,
         "Failed to extract audio",
+      );
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  generateThumbnail: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      return;
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = createFormData(state.file, {
+        ...(options.time !== undefined && { time: options.time }),
+        ...(options.format && { format: options.format }),
+      });
+
+      const response = await apiClient.post("/api/media/thumbnail", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "image/png",
+      });
+      const resultUrl = URL.createObjectURL(blob);
+
+      set(
+        produce((draft) => {
+          draft.resultUrl = resultUrl;
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to generate thumbnail",
+      );
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  trimVideo: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      return;
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = createFormData(state.file, {
+        startTime: options.startTime,
+        endTime: options.endTime,
+        ...(options.targetFormat && { targetFormat: options.targetFormat }),
+      });
+
+      const response = await apiClient.post("/api/media/trim", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "video/mp4",
+      });
+      const resultUrl = URL.createObjectURL(blob);
+
+      set(
+        produce((draft) => {
+          draft.resultUrl = resultUrl;
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(error, "Failed to trim video");
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  extractFrame: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      return;
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = createFormData(state.file, {
+        ...(options.time !== undefined && { time: options.time }),
+        ...(options.frameNumber !== undefined && {
+          frameNumber: options.frameNumber,
+        }),
+        ...(options.format && { format: options.format }),
+      });
+
+      const response = await apiClient.post(
+        "/api/media/extract-frame",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          responseType: "blob",
+          onUploadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.uploadProgress = progress.percentage;
+              }),
+            );
+          }),
+          onDownloadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.processingProgress = progress.percentage;
+              }),
+            );
+          }),
+        },
+      );
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "image/png",
+      });
+      const resultUrl = URL.createObjectURL(blob);
+
+      set(
+        produce((draft) => {
+          draft.resultUrl = resultUrl;
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to extract frame",
+      );
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  handleSubtitles: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      return;
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = new FormData();
+      formData.append("file", state.file);
+      formData.append("operation", options.operation);
+      if (options.subtitleFile) {
+        formData.append("subtitleFile", options.subtitleFile);
+      }
+      if (options.subtitleText) {
+        formData.append("subtitleText", options.subtitleText);
+      }
+      if (options.format) {
+        formData.append("format", options.format);
+      }
+
+      const response = await apiClient.post("/api/media/subtitles", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "text/plain",
+      });
+      const resultUrl = URL.createObjectURL(blob);
+
+      set(
+        produce((draft) => {
+          draft.resultUrl = resultUrl;
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to handle subtitles",
       );
       set(
         produce((draft) => {

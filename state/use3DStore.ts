@@ -7,7 +7,7 @@ import {
   createFormData,
   createProgressHandler,
 } from "@/lib/api/client";
-import type { Convert3DOptions } from "@/lib/api/types";
+import type { Convert3DOptions, Extract3DDataOptions } from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
 
 export interface ThreeDState {
@@ -31,6 +31,7 @@ interface ThreeDActions {
   setProcessingProgress: (progress: number) => void;
   setError: (error: string | null) => void;
   convert3D: (options: Convert3DOptions) => Promise<void>;
+  extract3DData: (options: Extract3DDataOptions) => Promise<string>;
   reset: () => void;
 }
 
@@ -182,6 +183,76 @@ export const use3DStore = create<ThreeDState & ThreeDActions>((set, get) => ({
       const errorMessage = extractErrorMessage(
         error,
         "Failed to convert 3D model",
+      );
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  extract3DData: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      throw new Error("No file selected");
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = createFormData(state.file, {
+        extractType: options.extractType,
+      });
+
+      const response = await apiClient.post("/api/3d/extract", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "json",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
+
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+
+      return JSON.stringify(response.data, null, 2);
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to extract 3D data",
       );
       set(
         produce((draft) => {
