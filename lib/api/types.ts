@@ -14,6 +14,7 @@ export interface ConvertImageOptions {
   height?: number;
   quality?: number;
   removeBackground?: boolean;
+  colorVectorization?: boolean; // For SVG format: use color vectorization (true) or black and white (false). Default: false
 }
 
 // 3D conversion types

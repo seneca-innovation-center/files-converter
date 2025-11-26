@@ -145,6 +145,9 @@ export const useImagesStore = create<ImageState & ImageActions>((set, get) => ({
         ...(options.removeBackground !== undefined && {
           removeBackground: options.removeBackground,
         }),
+        ...(options.colorVectorization !== undefined && {
+          colorVectorization: options.colorVectorization,
+        }),
       });
 
       const response = await apiClient.post("/api/images/convert", formData, {

@@ -44,6 +44,7 @@ export function ImageConverter() {
   const [removeBg, setRemoveBg] = useState(false);
   const [quality, setQuality] = useState(90);
   const [sliderValue, setSliderValue] = useState(50);
+  const [colorVectorization, setColorVectorization] = useState(false);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -67,6 +68,7 @@ export function ImageConverter() {
         format,
         removeBackground: removeBg,
         quality: format === "jpeg" || format === "webp" ? quality : undefined,
+        colorVectorization: format === "svg" ? colorVectorization : undefined,
       });
       toast.success("Image converted successfully!");
     } catch (err) {
@@ -93,6 +95,7 @@ export function ImageConverter() {
     setRemoveBg(false);
     setQuality(90);
     setSliderValue(50);
+    setColorVectorization(false);
   };
 
   return (
@@ -188,6 +191,22 @@ export function ImageConverter() {
                     max={100}
                     step={1}
                   />
+                </div>
+              )}
+
+              {format === "svg" && (
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center gap-2 text-sm font-medium">
+                    <Sparkles className="h-4 w-4" />
+                    Color Vectorization
+                  </label>
+                  <Button
+                    variant={colorVectorization ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setColorVectorization(!colorVectorization)}
+                  >
+                    {colorVectorization ? "Color" : "B&W"}
+                  </Button>
                 </div>
               )}
             </div>
