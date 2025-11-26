@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useMediaStore } from "@/state/useMediaStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +19,7 @@ import {
   Scissors,
   Film,
   Subtitles,
+  FileText,
 } from "lucide-react";
 import type { VideoFormat, AudioFormat } from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
@@ -55,11 +56,18 @@ export function MediaConverter() {
     trimVideo,
     extractFrame,
     handleSubtitles,
+    transcribeVideo,
     reset,
   } = useMediaStore();
 
   const [mode, setMode] = useState<
-    "convert" | "extract" | "thumbnail" | "trim" | "frame" | "subtitles"
+    | "convert"
+    | "extract"
+    | "thumbnail"
+    | "trim"
+    | "frame"
+    | "subtitles"
+    | "transcribe"
   >("convert");
   const [targetFormat, setTargetFormat] = useState<string>("mp4");
   const [videoCodec, setVideoCodec] = useState<string>("libx264");
@@ -88,6 +96,38 @@ export function MediaConverter() {
   const [subtitleFormat, setSubtitleFormat] = useState<"srt" | "vtt" | "ass">(
     "srt",
   );
+  // Transcription options
+  const [transcriptionLanguage, setTranscriptionLanguage] =
+    useState<string>("");
+  const [transcriptionFormat, setTranscriptionFormat] = useState<
+    "txt" | "srt" | "vtt" | "json"
+  >("txt");
+  const [transcriptionText, setTranscriptionText] = useState<string>("");
+
+  // Fetch transcription text when result is available
+  useEffect(() => {
+    if (resultUrl && mode === "transcribe") {
+      fetch(resultUrl)
+        .then((response) => response.text())
+        .then((text) => {
+          if (transcriptionFormat === "json") {
+            try {
+              const parsed = JSON.parse(text);
+              setTranscriptionText(JSON.stringify(parsed, null, 2));
+            } catch {
+              setTranscriptionText(text);
+            }
+          } else {
+            setTranscriptionText(text);
+          }
+        })
+        .catch(() => {
+          setTranscriptionText("Failed to load transcription");
+        });
+    } else {
+      setTranscriptionText("");
+    }
+  }, [resultUrl, mode, transcriptionFormat]);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -152,6 +192,8 @@ export function MediaConverter() {
         extension = subtitleFormat;
       } else if (mode === "trim") {
         extension = trimTargetFormat || "mp4";
+      } else if (mode === "transcribe") {
+        extension = transcriptionFormat;
       }
       link.download = `${originalName}.${extension}`;
       document.body.appendChild(link);
@@ -260,6 +302,27 @@ export function MediaConverter() {
     }
   };
 
+  const handleTranscribe = async () => {
+    if (!file) {
+      toast.error("Please select a video file first");
+      return;
+    }
+
+    try {
+      await transcribeVideo({
+        language: transcriptionLanguage || undefined,
+        outputFormat: transcriptionFormat,
+      });
+      toast.success("Video transcribed successfully!");
+    } catch (err) {
+      const errorMessage = extractErrorMessage(
+        err,
+        "Failed to transcribe video",
+      );
+      toast.error(errorMessage);
+    }
+  };
+
   const handleReset = () => {
     reset();
     setMode("convert");
@@ -276,6 +339,8 @@ export function MediaConverter() {
     setSubtitleFile(null);
     setSubtitleText("");
     setSubtitleFormat("srt");
+    setTranscriptionLanguage("");
+    setTranscriptionFormat("txt");
   };
 
   return (
@@ -291,6 +356,8 @@ export function MediaConverter() {
                 <Music className="h-5 w-5" />
               ) : mode === "thumbnail" || mode === "frame" ? (
                 <Image className="h-5 w-5" />
+              ) : mode === "transcribe" ? (
+                <FileText className="h-5 w-5" />
               ) : (
                 <Subtitles className="h-5 w-5" />
               )}
@@ -380,28 +447,41 @@ export function MediaConverter() {
                   <Subtitles className="h-4 w-4" />
                   <span className="text-xs">Subtitles</span>
                 </Button>
+                <Button
+                  variant={mode === "transcribe" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMode("transcribe")}
+                  className="flex-col gap-1 py-3"
+                >
+                  <FileText className="h-4 w-4" />
+                  <span className="text-xs">Transcribe</span>
+                </Button>
               </div>
             </div>
 
             <Separator />
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Target Format</label>
-              <div className="flex flex-wrap gap-2">
-                {(mode === "convert" ? VIDEO_FORMATS : AUDIO_FORMATS).map(
-                  (format) => (
-                    <Badge
-                      key={format}
-                      variant={targetFormat === format ? "default" : "outline"}
-                      className="cursor-pointer"
-                      onClick={() => setTargetFormat(format)}
-                    >
-                      {format.toUpperCase()}
-                    </Badge>
-                  ),
-                )}
+            {mode !== "transcribe" && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Target Format</label>
+                <div className="flex flex-wrap gap-2">
+                  {(mode === "convert" ? VIDEO_FORMATS : AUDIO_FORMATS).map(
+                    (format) => (
+                      <Badge
+                        key={format}
+                        variant={
+                          targetFormat === format ? "default" : "outline"
+                        }
+                        className="cursor-pointer"
+                        onClick={() => setTargetFormat(format)}
+                      >
+                        {format.toUpperCase()}
+                      </Badge>
+                    ),
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {mode === "convert" && (
               <>
@@ -703,6 +783,52 @@ export function MediaConverter() {
               </>
             )}
 
+            {mode === "transcribe" && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Language (optional, auto-detects if empty)
+                    </label>
+                    <input
+                      type="text"
+                      className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
+                      value={transcriptionLanguage}
+                      onChange={(e) => setTranscriptionLanguage(e.target.value)}
+                      placeholder="en, fr, es, de, etc."
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      Leave empty for auto-detection. Use ISO 639-1 language
+                      codes (e.g., en, fr, es).
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Output Format</label>
+                    <div className="flex gap-2">
+                      {(["txt", "srt", "vtt", "json"] as const).map(
+                        (format) => (
+                          <Button
+                            key={format}
+                            variant={
+                              transcriptionFormat === format
+                                ? "default"
+                                : "outline"
+                            }
+                            size="sm"
+                            onClick={() => setTranscriptionFormat(format)}
+                            className="uppercase"
+                          >
+                            {format}
+                          </Button>
+                        ),
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
             <Button
               onClick={
                 mode === "convert"
@@ -715,7 +841,9 @@ export function MediaConverter() {
                         ? handleTrim
                         : mode === "frame"
                           ? handleExtractFrame
-                          : handleSubtitleOperation
+                          : mode === "subtitles"
+                            ? handleSubtitleOperation
+                            : handleTranscribe
               }
               disabled={!file || isConverting}
               className="w-full"
@@ -735,8 +863,10 @@ export function MediaConverter() {
                 "Trim Video"
               ) : mode === "frame" ? (
                 "Extract Frame"
-              ) : (
+              ) : mode === "subtitles" ? (
                 `${subtitleOperation === "extract" ? "Extract" : "Embed"} Subtitles`
+              ) : (
+                "Transcribe Video"
               )}
             </Button>
           </CardContent>
@@ -827,6 +957,28 @@ export function MediaConverter() {
         </Card>
       )}
 
+      {/* Transcription Preview */}
+      {resultUrl && mode === "transcribe" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Transcription Result</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {transcriptionFormat === "json" ? (
+              <pre className="border-input bg-background max-h-[400px] overflow-auto rounded-md border p-4 font-mono text-sm">
+                {transcriptionText || "Loading..."}
+              </pre>
+            ) : (
+              <div className="border-input bg-background max-h-[400px] overflow-auto rounded-md border p-4">
+                <p className="font-mono text-sm whitespace-pre-wrap">
+                  {transcriptionText || "Loading..."}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Download Section */}
       {resultUrl && (
         <Card>
@@ -845,7 +997,9 @@ export function MediaConverter() {
                           ? "Video trimmed successfully"
                           : mode === "frame"
                             ? "Frame extracted successfully"
-                            : `Subtitles ${subtitleOperation === "extract" ? "extracted" : "embedded"} successfully`}
+                            : mode === "subtitles"
+                              ? `Subtitles ${subtitleOperation === "extract" ? "extracted" : "embedded"} successfully`
+                              : "Video transcribed successfully"}
                 </p>
               </div>
               <div className="flex gap-2">

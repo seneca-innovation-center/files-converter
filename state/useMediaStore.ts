@@ -14,6 +14,7 @@ import type {
   TrimVideoOptions,
   ExtractFrameOptions,
   SubtitleOperationOptions,
+  TranscribeVideoOptions,
 } from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
 
@@ -40,6 +41,7 @@ interface MediaActions {
   trimVideo: (options: TrimVideoOptions) => Promise<void>;
   extractFrame: (options: ExtractFrameOptions) => Promise<void>;
   handleSubtitles: (options: SubtitleOperationOptions) => Promise<void>;
+  transcribeVideo: (options: TranscribeVideoOptions) => Promise<void>;
   reset: () => void;
 }
 
@@ -564,6 +566,85 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       const errorMessage = extractErrorMessage(
         error,
         "Failed to handle subtitles",
+      );
+      set(
+        produce((draft) => {
+          draft.isConverting = false;
+          draft.error = errorMessage;
+        }),
+      );
+      throw error;
+    }
+  },
+
+  transcribeVideo: async (options) => {
+    const state = get();
+    if (!state.file) {
+      set(
+        produce((draft) => {
+          draft.error = "No file selected";
+        }),
+      );
+      return;
+    }
+
+    set(
+      produce((draft) => {
+        draft.isConverting = true;
+        draft.error = null;
+        draft.uploadProgress = 0;
+        draft.processingProgress = 0;
+      }),
+    );
+
+    try {
+      const formData = new FormData();
+      formData.append("file", state.file);
+      if (options.language) {
+        formData.append("language", options.language);
+      }
+      if (options.outputFormat) {
+        formData.append("outputFormat", options.outputFormat);
+      }
+
+      const response = await apiClient.post("/api/media/transcribe", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
+
+      const blob = new Blob([response.data], {
+        type: response.headers["content-type"] || "text/plain",
+      });
+      const resultUrl = URL.createObjectURL(blob);
+
+      set(
+        produce((draft) => {
+          draft.resultUrl = resultUrl;
+          draft.isConverting = false;
+          draft.uploadProgress = 100;
+          draft.processingProgress = 100;
+        }),
+      );
+    } catch (error: unknown) {
+      const errorMessage = extractErrorMessage(
+        error,
+        "Failed to transcribe video",
       );
       set(
         produce((draft) => {

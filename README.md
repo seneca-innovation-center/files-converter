@@ -1,6 +1,6 @@
 # 🚀 Universal File Converter
 
-A beautiful, modern, and open-source file converter built with Next.js 14+, supporting image format conversion with AI background removal, 3D model conversion (GLB, OBJ, USDZ), and general file format conversion.
+A beautiful, modern, and open-source file converter built with Next.js 14+, supporting image format conversion with AI background removal, 3D model conversion (GLB, OBJ, USDZ), media conversion and transcription, and general file format conversion.
 
 ![Universal File Converter](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
@@ -23,6 +23,20 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 - **Draco Compression**: Compress GLB files with Draco compression
 - **Interactive Preview**: 3D model viewer with orbit controls
 - **Real-time Progress**: Track conversion progress
+
+### 🎬 Media Conversion
+
+- **Video Conversion**: Convert between MP4, WebM, AVI, MOV, MKV, and GIF formats
+- **Audio Extraction**: Extract audio from video files (MP3, WAV, AAC, FLAC)
+- **Thumbnail Generation**: Generate thumbnails from videos at specific timestamps
+- **Video Trimming**: Trim videos to specific time ranges
+- **Frame Extraction**: Extract individual frames from videos
+- **Subtitle Operations**: Extract or embed subtitles (SRT, VTT, ASS formats)
+- **Video Transcription**: Transcribe video to text using OpenAI Whisper
+  - **Multiple Output Formats**: Plain text (TXT), SubRip (SRT), WebVTT (VTT), or JSON with timestamps
+  - **Language Support**: Auto-detect language or specify manually (ISO 639-1 codes)
+  - **Real-time Preview**: View transcription results before downloading
+- **Real-time Progress**: Track upload and processing progress for all operations
 
 ### 📄 File Conversion
 
@@ -114,11 +128,13 @@ files-converter/
 │   ├── ImageConverter.tsx
 │   ├── ThreeDConverter.tsx
 │   ├── FilesConverter.tsx
+│   ├── MediaConverter.tsx
 │   └── ModelViewer.tsx
 ├── state/                # Zustand stores
 │   ├── useImagesStore.ts
 │   ├── use3DStore.ts
-│   └── useFilesStore.ts
+│   ├── useFilesStore.ts
+│   └── useMediaStore.ts
 ├── lib/                  # Utilities
 │   ├── api/             # API client
 │   └── utils.ts         # Helper functions
@@ -152,6 +168,36 @@ files-converter/
 6. Preview the converted model in the 3D viewer
 7. Download the converted file
 
+### Media Conversion
+
+1. Navigate to the **Media** tab
+2. Upload a video or audio file (max 200MB)
+3. Select operation mode:
+   - **Convert** - Convert video/audio to different formats
+   - **Extract Audio** - Extract audio track from video
+   - **Thumbnail** - Generate thumbnail at specific time
+   - **Trim** - Trim video to specific time range
+   - **Extract Frame** - Extract individual frame from video
+   - **Subtitles** - Extract or embed subtitles
+   - **Transcribe** - Transcribe video to text using AI
+4. Configure options based on selected operation
+5. Click the operation button
+6. Preview results (for videos, images, or transcriptions)
+7. Download the result
+
+#### Video Transcription
+
+1. Select **Transcribe** mode
+2. (Optional) Specify language code (e.g., 'en', 'fr', 'es') or leave empty for auto-detection
+3. Choose output format:
+   - **TXT** - Plain text transcription
+   - **SRT** - SubRip subtitle format with timestamps
+   - **VTT** - WebVTT format for web players
+   - **JSON** - Structured JSON with timestamps and segments
+4. Click **Transcribe Video**
+5. View transcription preview
+6. Download the transcription file
+
 ### File Conversion
 
 1. Navigate to the **Files** tab
@@ -170,11 +216,28 @@ files-converter/
 
 This frontend requires a backend API running on `http://localhost:3001` (or configured URL).
 
+### Video Transcription Setup
+
+For video transcription to work, the backend must have Whisper models installed. Run this command in the backend directory:
+
+```bash
+npx whisper-node download
+```
+
+This downloads the default 'base' model. Models are stored locally and used for transcription.
+
 ### Endpoints
 
 - `POST /api/images/convert` - Convert images
 - `POST /api/3d/convert` - Convert 3D models
 - `POST /api/files/convert` - Convert files
+- `POST /api/media/convert` - Convert media files
+- `POST /api/media/extract-audio` - Extract audio from video
+- `POST /api/media/thumbnail` - Generate video thumbnail
+- `POST /api/media/trim` - Trim video
+- `POST /api/media/extract-frame` - Extract frame from video
+- `POST /api/media/subtitles` - Extract or embed subtitles
+- `POST /api/media/transcribe` - Transcribe video to text
 
 See the [backend repository](https://github.com/mohamedboukari/files-converter-api) for API documentation.
 
