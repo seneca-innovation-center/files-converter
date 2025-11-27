@@ -142,7 +142,7 @@ export const useFilesStore = create<FilesState & FilesActions>((set, get) => ({
         ...(options.options && { options: options.options }),
       });
 
-      const response = await apiClient.post("/api/files/convert", formData, {
+      const response = await apiClient.post("/files/convert", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

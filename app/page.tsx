@@ -14,12 +14,14 @@ import { EbooksConverter } from "@/components/EbooksConverter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GitHubStarButton } from "@/components/GitHubStarButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { AuthHeader } from "@/components/auth/AuthHeader";
 
 export default function Home() {
   return (
     <div className="bg-background min-h-screen">
       <div className="fixed top-4 right-4 z-50 flex gap-2">
         <ThemeToggle />
+        <AuthHeader />
         <GitHubStarButton />
       </div>
       <div className="container mx-auto px-4 py-8 md:py-12">

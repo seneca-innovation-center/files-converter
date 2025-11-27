@@ -8,6 +8,15 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 
 ## ✨ Features
 
+### 🔐 Authentication
+
+- **Email/Password Authentication**: Sign up and sign in with email and password
+- **Social Login**: Sign in with Google or GitHub OAuth
+- **Role-Based Access**: User roles (user, admin, super-admin) with role-based permissions
+- **Session Management**: Automatic session handling with Bearer token authentication
+- **Protected API Calls**: All API requests automatically include authentication tokens
+- **User Profile**: View and manage your profile with role indicators
+
 ### 🖼️ Image Conversion
 
 - **Format Conversion**: Convert between PNG, JPEG, WebP, AVIF, TIFF, BMP, and SVG
@@ -52,6 +61,7 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 - **Styling**: Tailwind CSS v4
 - **UI Components**: shadcn/ui
 - **State Management**: Zustand with Immer
+- **Authentication**: Better Auth
 - **HTTP Client**: Axios
 - **Notifications**: Sonner
 - **Icons**: Lucide React
@@ -86,6 +96,8 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
    NEXT_PUBLIC_BACKEND_URL=http://localhost:3001
    ```
 
+   **Note**: The backend must be configured with Better Auth. See [Backend Setup](#backend-setup) for details.
+
 4. **Run the development server**
 
    ```bash
@@ -101,7 +113,13 @@ Make sure to install all required packages:
 
 ```bash
 # Core dependencies
-npm install zustand axios sonner lucide-react react-hook-form zod
+npm install zustand axios sonner lucide-react react-hook-form zod immer
+
+# Authentication
+npm install better-auth
+
+# Form validation
+npm install @hookform/resolvers
 
 # 3D rendering (lazy loaded)
 npm install @react-three/fiber @react-three/drei three
@@ -113,6 +131,8 @@ npm install react-dropzone
 npm install clsx tailwind-merge class-variance-authority
 npm install @radix-ui/react-tabs @radix-ui/react-slider @radix-ui/react-separator
 npm install @radix-ui/react-progress @radix-ui/react-toast @radix-ui/react-slot
+npm install @radix-ui/react-dropdown-menu @radix-ui/react-dialog @radix-ui/react-avatar
+npm install @radix-ui/react-label @radix-ui/react-slot
 ```
 
 ## 🏗️ Project Structure
@@ -125,26 +145,54 @@ files-converter/
 │   └── globals.css        # Global styles
 ├── components/            # React components
 │   ├── ui/               # shadcn/ui components
+│   ├── auth/             # Authentication components
+│   │   ├── SignInForm.tsx
+│   │   ├── SignUpForm.tsx
+│   │   ├── UserMenu.tsx
+│   │   ├── AuthDialog.tsx
+│   │   └── AuthHeader.tsx
 │   ├── ImageConverter.tsx
 │   ├── ThreeDConverter.tsx
 │   ├── FilesConverter.tsx
 │   ├── MediaConverter.tsx
 │   └── ModelViewer.tsx
 ├── state/                # Zustand stores
+│   ├── useAuthStore.ts   # Authentication store
 │   ├── useImagesStore.ts
 │   ├── use3DStore.ts
 │   ├── useFilesStore.ts
 │   └── useMediaStore.ts
 ├── lib/                  # Utilities
 │   ├── api/             # API client
+│   │   └── client.ts    # Axios client with auth interceptor
+│   ├── auth/            # Authentication client
+│   │   └── client.ts    # Better Auth client
 │   └── utils.ts         # Helper functions
 ├── providers/           # React providers
-│   └── AppProviders.tsx
+│   └── AppProviders.tsx # App providers with auth initialization
 └── hooks/              # Custom hooks
     └── use-toast.ts
 ```
 
 ## 🎯 Usage
+
+### Authentication
+
+1. **Sign Up / Sign In**
+   - Click the **Sign In** button in the top-right corner
+   - Choose between email/password or social login (Google/GitHub)
+   - For email/password: Enter your email and password
+   - For social login: Click Google or GitHub button to authenticate
+
+2. **User Profile**
+   - Once signed in, click your avatar in the top-right
+   - View your email, name, and role (user/admin/super-admin)
+   - Sign out from the dropdown menu
+
+3. **Protected Features**
+   - All file conversion operations require authentication
+   - API requests automatically include your authentication token
+   - Your session persists across page refreshes
 
 ### Image Conversion
 

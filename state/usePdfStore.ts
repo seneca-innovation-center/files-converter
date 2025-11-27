@@ -136,7 +136,7 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
         formData.append("files", file);
       });
 
-      const response = await apiClient.post("/api/files/pdf/merge", formData, {
+      const response = await apiClient.post("/files/pdf/merge", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -211,7 +211,7 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
         ...(options.splitAt && { splitAt: options.splitAt }),
       });
 
-      const response = await apiClient.post("/api/files/pdf/split", formData, {
+      const response = await apiClient.post("/files/pdf/split", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -282,30 +282,26 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
         formData: options.formData,
       });
 
-      const response = await apiClient.post(
-        "/api/files/pdf/fill-form",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          responseType: "blob",
-          onUploadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.uploadProgress = progress.percentage;
-              }),
-            );
-          }),
-          onDownloadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.processingProgress = progress.percentage;
-              }),
-            );
-          }),
+      const response = await apiClient.post("/files/pdf/fill-form", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
 
       const blob = new Blob([response.data], {
         type: response.headers["content-type"] || "application/pdf",

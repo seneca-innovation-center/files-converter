@@ -1,14 +1,30 @@
 "use client";
 
 import axios, { AxiosProgressEvent } from "axios";
+import { useAuthStore } from "@/state/useAuthStore";
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 export const apiClient = axios.create({
-  baseURL: BACKEND_URL,
+  baseURL: `${BACKEND_URL}/api`,
   timeout: 300000, // 5 minutes for large file conversions
 });
+
+// Add auth token interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    // Get token from auth store
+    const token = useAuthStore.getState().session?.token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  },
+);
 
 // Interceptor to convert blob error responses to JSON
 apiClient.interceptors.response.use(
