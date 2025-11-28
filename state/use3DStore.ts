@@ -144,7 +144,7 @@ export const use3DStore = create<ThreeDState & ThreeDActions>((set, get) => ({
         ...(options.compress !== undefined && { compress: options.compress }),
       });
 
-      const response = await apiClient.post("/api/3d/convert", formData, {
+      const response = await apiClient.post("/3d/convert", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -219,7 +219,7 @@ export const use3DStore = create<ThreeDState & ThreeDActions>((set, get) => ({
         extractType: options.extractType,
       });
 
-      const response = await apiClient.post("/api/3d/extract", formData, {
+      const response = await apiClient.post("/3d/extract", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

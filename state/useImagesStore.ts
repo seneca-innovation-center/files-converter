@@ -150,7 +150,7 @@ export const useImagesStore = create<ImageState & ImageActions>((set, get) => ({
         }),
       });
 
-      const response = await apiClient.post("/api/images/convert", formData, {
+      const response = await apiClient.post("/images/convert", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

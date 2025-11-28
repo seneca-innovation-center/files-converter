@@ -122,7 +122,7 @@ export const useOCRStore = create<OCRState & OCRActions>((set, get) => ({
         ...(options.outputFormat && { outputFormat: options.outputFormat }),
       });
 
-      const response = await apiClient.post("/api/ocr/extract", formData, {
+      const response = await apiClient.post("/ocr/extract", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

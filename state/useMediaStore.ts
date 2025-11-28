@@ -136,7 +136,7 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         ...(options.height && { height: options.height }),
       });
 
-      const response = await apiClient.post("/api/media/convert", formData, {
+      const response = await apiClient.post("/media/convert", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -211,30 +211,26 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         format: options.format,
       });
 
-      const response = await apiClient.post(
-        "/api/media/extract-audio",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          responseType: "blob",
-          onUploadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.uploadProgress = progress.percentage;
-              }),
-            );
-          }),
-          onDownloadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.processingProgress = progress.percentage;
-              }),
-            );
-          }),
+      const response = await apiClient.post("/media/extract-audio", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
 
       const blob = new Blob([response.data], {
         type: response.headers["content-type"] || "audio/mpeg",
@@ -290,7 +286,7 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         ...(options.format && { format: options.format }),
       });
 
-      const response = await apiClient.post("/api/media/thumbnail", formData, {
+      const response = await apiClient.post("/media/thumbnail", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -366,7 +362,7 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         ...(options.targetFormat && { targetFormat: options.targetFormat }),
       });
 
-      const response = await apiClient.post("/api/media/trim", formData, {
+      const response = await apiClient.post("/media/trim", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -528,7 +524,7 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         formData.append("format", options.format);
       }
 
-      const response = await apiClient.post("/api/media/subtitles", formData, {
+      const response = await apiClient.post("/media/subtitles", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -607,7 +603,7 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         formData.append("outputFormat", options.outputFormat);
       }
 
-      const response = await apiClient.post("/api/media/transcribe", formData, {
+      const response = await apiClient.post("/media/transcribe", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

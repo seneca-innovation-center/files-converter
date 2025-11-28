@@ -63,7 +63,7 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
     );
 
     try {
-      const response = await apiClient.post("/api/qr/generate", options, {
+      const response = await apiClient.post("/qr/generate", options, {
         responseType: "blob",
       });
 
@@ -103,7 +103,7 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
     );
 
     try {
-      const response = await apiClient.post("/api/qr/barcode", options, {
+      const response = await apiClient.post("/qr/barcode", options, {
         responseType: "blob",
       });
 

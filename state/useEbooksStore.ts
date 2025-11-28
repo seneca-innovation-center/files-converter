@@ -101,7 +101,7 @@ export const useEbooksStore = create<EbooksState & EbooksActions>(
       );
 
       try {
-        const response = await apiClient.post("/api/ebooks/create", options, {
+        const response = await apiClient.post("/ebooks/create", options, {
           headers: {
             "Content-Type": "application/json",
           },
@@ -168,7 +168,7 @@ export const useEbooksStore = create<EbooksState & EbooksActions>(
           targetFormat: options.targetFormat,
         });
 
-        const response = await apiClient.post("/api/ebooks/convert", formData, {
+        const response = await apiClient.post("/ebooks/convert", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

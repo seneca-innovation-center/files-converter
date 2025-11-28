@@ -111,7 +111,7 @@ export const useCodeStore = create<CodeState & CodeActions>((set, get) => ({
         ...(options.outputFormat && { outputFormat: options.outputFormat }),
       });
 
-      const response = await apiClient.post("/api/code/format", formData, {
+      const response = await apiClient.post("/code/format", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
