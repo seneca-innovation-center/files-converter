@@ -115,30 +115,26 @@ export const useArchiveStore = create<ArchiveState & ArchiveActions>(
           );
         }
 
-        const response = await apiClient.post(
-          "/api/archives/create",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            responseType: "blob",
-            onUploadProgress: createProgressHandler((progress) => {
-              set(
-                produce((draft) => {
-                  draft.uploadProgress = progress.percentage;
-                }),
-              );
-            }),
-            onDownloadProgress: createProgressHandler((progress) => {
-              set(
-                produce((draft) => {
-                  draft.processingProgress = progress.percentage;
-                }),
-              );
-            }),
+        const response = await apiClient.post("/archives/create", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
           },
-        );
+          responseType: "blob",
+          onUploadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.uploadProgress = progress.percentage;
+              }),
+            );
+          }),
+          onDownloadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.processingProgress = progress.percentage;
+              }),
+            );
+          }),
+        });
 
         const blob = new Blob([response.data], {
           type: response.headers["content-type"] || "application/zip",

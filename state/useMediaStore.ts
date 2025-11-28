@@ -437,30 +437,26 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
         ...(options.format && { format: options.format }),
       });
 
-      const response = await apiClient.post(
-        "/api/media/extract-frame",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          responseType: "blob",
-          onUploadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.uploadProgress = progress.percentage;
-              }),
-            );
-          }),
-          onDownloadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.processingProgress = progress.percentage;
-              }),
-            );
-          }),
+      const response = await apiClient.post("/media/extract-frame", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-      );
+        responseType: "blob",
+        onUploadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.uploadProgress = progress.percentage;
+            }),
+          );
+        }),
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
 
       const blob = new Blob([response.data], {
         type: response.headers["content-type"] || "image/png",

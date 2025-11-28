@@ -105,23 +105,19 @@ export const usePresentationsStore = create<
     );
 
     try {
-      const response = await apiClient.post(
-        "/api/presentations/create",
-        options,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          responseType: "blob",
-          onDownloadProgress: createProgressHandler((progress) => {
-            set(
-              produce((draft) => {
-                draft.processingProgress = progress.percentage;
-              }),
-            );
-          }),
+      const response = await apiClient.post("/presentations/create", options, {
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        responseType: "blob",
+        onDownloadProgress: createProgressHandler((progress) => {
+          set(
+            produce((draft) => {
+              draft.processingProgress = progress.percentage;
+            }),
+          );
+        }),
+      });
 
       const blob = new Blob([response.data], {
         type:
@@ -179,7 +175,7 @@ export const usePresentationsStore = create<
       });
 
       const response = await apiClient.post(
-        "/api/presentations/convert",
+        "/presentations/convert",
         formData,
         {
           headers: {

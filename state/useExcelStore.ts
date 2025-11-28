@@ -117,7 +117,7 @@ export const useExcelStore = create<ExcelState & ExcelActions>((set, get) => ({
       });
 
       const response = await apiClient.post(
-        "/api/files/excel/export-chart",
+        "/files/excel/export-chart",
         formData,
         {
           headers: {

@@ -118,30 +118,26 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
           targetFormat: options.targetFormat,
         });
 
-        const response = await apiClient.post(
-          "/api/markdown/convert",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-            responseType: "blob",
-            onUploadProgress: createProgressHandler((progress) => {
-              set(
-                produce((draft) => {
-                  draft.uploadProgress = progress.percentage;
-                }),
-              );
-            }),
-            onDownloadProgress: createProgressHandler((progress) => {
-              set(
-                produce((draft) => {
-                  draft.processingProgress = progress.percentage;
-                }),
-              );
-            }),
+        const response = await apiClient.post("/markdown/convert", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
           },
-        );
+          responseType: "blob",
+          onUploadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.uploadProgress = progress.percentage;
+              }),
+            );
+          }),
+          onDownloadProgress: createProgressHandler((progress) => {
+            set(
+              produce((draft) => {
+                draft.processingProgress = progress.percentage;
+              }),
+            );
+          }),
+        });
 
         const blob = new Blob([response.data], {
           type:
@@ -197,7 +193,7 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
         const formData = createFormData(state.file, {});
 
         const response = await apiClient.post(
-          "/api/markdown/html-to-markdown",
+          "/markdown/html-to-markdown",
           formData,
           {
             headers: {
