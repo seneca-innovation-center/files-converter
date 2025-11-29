@@ -1,11 +1,12 @@
 "use client";
 
-import { Suspense, useMemo, useEffect, useState } from "react";
+import { Suspense, useMemo } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Environment } from "@react-three/drei";
+import { OrbitControls, useGLTF, Environment, useFBX } from "@react-three/drei";
 import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader.js";
-import { USDLoader } from "three/examples/jsm/loaders/USDLoader.js";
-import type { Group } from "three";
+import { STLLoader } from "three/examples/jsm/loaders/STLLoader.js";
+import { PLYLoader } from "three/examples/jsm/loaders/PLYLoader.js";
+
 import { Loader2 } from "lucide-react";
 import { getFileExtension } from "@/lib/utils";
 
@@ -19,63 +20,39 @@ function OBJModel({ url }: { url: string }) {
   return <primitive object={obj} scale={1} />;
 }
 
-function USDZModel({ url }: { url: string }) {
-  const [model, setModel] = useState<Group | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+function FBXModel({ url }: { url: string }) {
+  const fbx = useFBX(url);
+  return <primitive object={fbx} scale={1} />;
+}
 
-  useEffect(() => {
-    let isCancelled = false;
-    const loader = new USDLoader();
+function STLModel({ url }: { url: string }) {
+  const geometry = useLoader(STLLoader, url);
 
-    // Fetch blob URL as arraybuffer and parse directly
-    // This avoids issues with FileLoader and blob URLs
-    fetch(url)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error(`Failed to fetch USDZ file: ${response.statusText}`);
-        }
-        return response.arrayBuffer();
-      })
-      .then((arrayBuffer) => {
-        if (isCancelled) return;
-        try {
-          const loadedModel = loader.parse(arrayBuffer);
-          if (!isCancelled) {
-            setModel(loadedModel);
-            setError(null);
-          }
-        } catch (parseError) {
-          if (!isCancelled) {
-            throw parseError;
-          }
-        }
-      })
-      .catch((err) => {
-        if (!isCancelled) {
-          setError(err);
-          console.error("Failed to load USDZ model:", err);
-        }
-      });
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [url]);
-
-  if (error) {
-    return (
-      <mesh>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-    );
+  // Compute normals if not present
+  if (geometry.attributes.normal === undefined) {
+    geometry.computeVertexNormals();
   }
 
-  if (!model) {
-    return null; // Suspense will handle loading state
+  return (
+    <mesh geometry={geometry}>
+      <meshStandardMaterial />
+    </mesh>
+  );
+}
+
+function PLYModel({ url }: { url: string }) {
+  const geometry = useLoader(PLYLoader, url);
+
+  // Compute normals if not present
+  if (geometry.attributes.normal === undefined) {
+    geometry.computeVertexNormals();
   }
 
-  return <primitive object={model} scale={1} />;
+  return (
+    <mesh geometry={geometry}>
+      <meshStandardMaterial />
+    </mesh>
+  );
 }
 
 function Model({ url, format }: { url: string; format?: string }) {
@@ -110,8 +87,12 @@ function Model({ url, format }: { url: string; format?: string }) {
     return <OBJModel url={url} />;
   } else if (fileExtension === "glb" || fileExtension === "gltf") {
     return <GLBModel url={url} />;
-  } else if (fileExtension === "usdz") {
-    return <USDZModel url={url} />;
+  } else if (fileExtension === "fbx") {
+    return <FBXModel url={url} />;
+  } else if (fileExtension === "stl") {
+    return <STLModel url={url} />;
+  } else if (fileExtension === "ply") {
+    return <PLYModel url={url} />;
   }
 
   // Default to GLB loader (most common)
@@ -154,7 +135,7 @@ export default function ModelViewer({
             enableZoom={true}
             enableRotate={true}
             minDistance={2}
-            maxDistance={10}
+            maxDistance={50}
           />
           <Environment preset="sunset" />
         </Suspense>

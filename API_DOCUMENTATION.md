@@ -507,7 +507,7 @@ Convert 3D models with optional optimization.
 **Supported Formats**:
 
 ```typescript
-type ThreeDFormat = "glb" | "gltf" | "obj" | "usdz" | "fbx" | "stl" | "ply";
+type ThreeDFormat = "glb" | "gltf" | "obj" | "fbx" | "stl" | "ply";
 ```
 
 **Response**: Binary 3D model file
@@ -1319,14 +1319,7 @@ export interface DocumentConvertRequest {
 // 3D MODEL TYPES
 // ============================================
 
-export type ThreeDFormat =
-  | "glb"
-  | "gltf"
-  | "obj"
-  | "usdz"
-  | "fbx"
-  | "stl"
-  | "ply";
+export type ThreeDFormat = "glb" | "gltf" | "obj" | "fbx" | "stl" | "ply";
 
 export interface ThreeDConvertRequest {
   file: File;
@@ -2320,7 +2313,7 @@ const transcriptionData = (await FileConverterAPI.transcribeVideo({
 
 **Updated Format Support**:
 
-- Added: `fbx`, `stl`, `ply` to existing `glb`, `gltf`, `obj`, `usdz`
+- Added: `fbx`, `stl`, `ply` to existing `glb`, `gltf`, `obj`,
 
 **Frontend Integration**:
 
@@ -2445,14 +2438,7 @@ export interface Extract3DDataRequest {
 }
 
 // Updated 3D Format
-export type ThreeDFormat =
-  | "glb"
-  | "gltf"
-  | "obj"
-  | "usdz"
-  | "fbx"
-  | "stl"
-  | "ply";
+export type ThreeDFormat = "glb" | "gltf" | "obj" | "fbx" | "stl" | "ply";
 ```
 
 ### Migration Guide
