@@ -1,6 +1,6 @@
-# 🚀 Universal File Converter
+# 🚀 ConvertHub - Universal File Converter
 
-A beautiful, modern, and open-source file converter built with Next.js 14+, supporting image format conversion with AI background removal, 3D model conversion (GLB, OBJ, USDZ), media conversion and transcription, and general file format conversion.
+A beautiful, modern, and open-source file converter built with Next.js 14+, supporting image format conversion with AI background removal, 3D model conversion (GLB, OBJ, FBX, STL, PLY), media conversion and transcription, and general file format conversion.
 
 ![Universal File Converter](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
@@ -27,7 +27,7 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 
 ### 🎨 3D Model Conversion
 
-- **Format Support**: Convert between GLB, OBJ, and USDZ formats
+- **Format Support**: Convert between GLB, OBJ, formats
 - **Optimization**: Optimize 3D models with pruning and welding
 - **Draco Compression**: Compress GLB files with Draco compression
 - **Interactive Preview**: 3D model viewer with orbit controls
@@ -100,9 +100,9 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 
 4. **Run the development server**
 
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
 5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
@@ -210,7 +210,7 @@ files-converter/
 
 1. Navigate to the **3D Models** tab
 2. Upload a 3D model file (GLB, GLTF, OBJ)
-3. Select output format (GLB, OBJ, USDZ)
+3. Select output format (GLB, OBJ, )
 4. Optionally enable optimization and compression
 5. Click **Convert 3D Model**
 6. Preview the converted model in the 3D viewer

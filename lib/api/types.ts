@@ -18,14 +18,7 @@ export interface ConvertImageOptions {
 }
 
 // 3D conversion types
-export type ThreeDFormat =
-  | "glb"
-  | "gltf"
-  | "obj"
-  | "usdz"
-  | "fbx"
-  | "stl"
-  | "ply";
+export type ThreeDFormat = "glb" | "gltf" | "obj" | "fbx" | "stl" | "ply";
 
 export interface Convert3DOptions {
   format: ThreeDFormat;

@@ -27,7 +27,6 @@ const THREE_D_FORMATS: ThreeDFormat[] = [
   "glb",
   "gltf",
   "obj",
-  "usdz",
   "fbx",
   "stl",
   "ply",
@@ -150,15 +149,7 @@ export function ThreeDConverter() {
             <Dropzone
               onDrop={handleDrop}
               accept={{
-                "model/*": [
-                  ".glb",
-                  ".gltf",
-                  ".obj",
-                  ".usdz",
-                  ".fbx",
-                  ".stl",
-                  ".ply",
-                ],
+                "model/*": [".glb", ".gltf", ".obj", ".fbx", ".stl", ".ply"],
                 "application/octet-stream": [
                   ".glb",
                   ".gltf",

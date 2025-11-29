@@ -27,11 +27,11 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            Universal File Converter
+            ConvertHub
           </h1>
           <p className="text-muted-foreground mt-4 text-lg md:text-xl">
-            Convert images, 3D models, files, media, and more. Fast, reliable,
-            and free.
+            Universal File Converter - Convert images, 3D models, files, media,
+            and more. Fast, reliable, and free.
           </p>
         </div>
 
