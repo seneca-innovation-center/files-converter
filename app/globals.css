@@ -56,4 +56,169 @@ html.dark {
       "rlig" 1,
       "calt" 1;
   }
+  button {
+    cursor: pointer;
+  }
+}
+
+/* Prose styling for markdown preview */
+.hljs {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+/* Code block styling */
+pre {
+  background-color: rgb(248 250 252);
+  color: rgb(30 41 59);
+}
+
+.dark pre {
+  background-color: rgb(40 44 52);
+  color: rgb(171 178 191);
+}
+
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+.prose h1 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 3rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose h2 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 2.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.prose h3 {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.prose h4 {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.prose p {
+  margin-bottom: 1rem !important;
+  line-height: 1.75 !important;
+}
+
+.prose strong {
+  font-weight: 700 !important;
+  color: rgb(15 23 42) !important;
+}
+
+.dark .prose strong {
+  color: rgb(248 250 252) !important;
+}
+
+.prose a {
+  color: rgb(79 70 229) !important;
+  text-decoration: none !important;
+}
+
+.prose a:hover {
+  text-decoration: underline !important;
+}
+
+.dark .prose a {
+  color: rgb(129 140 248) !important;
+}
+
+.prose ul,
+.prose ol {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.prose li {
+  margin-top: 0.25rem !important;
+}
+
+.prose img {
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.prose blockquote {
+  border-left: 4px solid rgb(99 102 241) !important;
+  font-style: italic !important;
+  padding-left: 1rem !important;
+  margin: 1.5rem 0 !important;
+}
+
+.prose table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+.prose thead {
+  background-color: rgb(248 250 252) !important;
+}
+
+.dark .prose thead {
+  background-color: rgb(30 41 59) !important;
+}
+
+.prose tbody {
+  background-color: transparent !important;
+}
+
+.prose tr {
+  border-bottom: 1px solid rgb(226 232 240) !important;
+}
+
+.dark .prose tr {
+  border-bottom: 1px solid rgb(51 65 85) !important;
+}
+
+.prose tr:last-child {
+  border-bottom: none !important;
+}
+
+.prose th {
+  padding: 0.75rem 1rem !important;
+  text-align: left !important;
+  font-weight: 600 !important;
+  color: rgb(15 23 42) !important;
+  border-bottom: 2px solid rgb(203 213 225) !important;
+}
+
+.dark .prose th {
+  color: rgb(248 250 252) !important;
+  border-bottom: 2px solid rgb(51 65 85) !important;
+}
+
+.prose td {
+  padding: 0.75rem 1rem !important;
+  color: rgb(15 23 42) !important;
+}
+
+.dark .prose td {
+  color: rgb(248 250 252) !important;
+}
+
+.prose tbody tr:hover {
+  background-color: rgb(248 250 252) !important;
+}
+
+.dark .prose tbody tr:hover {
+  background-color: rgb(30 41 59) !important;
 }
