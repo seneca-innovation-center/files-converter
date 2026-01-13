@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useImagesStore } from "@/state/useImagesStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +10,18 @@ import { Badge } from "@/components/ui/badge";
 import { Dropzone } from "@/components/ui/dropzone";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Download, Image as ImageIcon, Sparkles, Loader2 } from "lucide-react";
+import {
+  Download,
+  Image as ImageIcon,
+  Sparkles,
+  Loader2,
+  Code,
+} from "lucide-react";
 import Image from "next/image";
 import type { ImageFormat } from "@/lib/api/types";
 import { extractErrorMessage } from "@/lib/utils";
+import Editor from "@monaco-editor/react";
+import { useTheme } from "next-themes";
 
 const IMAGE_FORMATS: ImageFormat[] = [
   "png",
@@ -40,11 +48,29 @@ export function ImageConverter() {
     reset,
   } = useImagesStore();
 
+  const { theme } = useTheme();
   const [format, setFormat] = useState<ImageFormat>("png");
   const [removeBg, setRemoveBg] = useState(false);
   const [quality, setQuality] = useState(90);
   const [sliderValue, setSliderValue] = useState(50);
   const [colorVectorization, setColorVectorization] = useState(false);
+  const [svgCode, setSvgCode] = useState<string>("");
+  const [editedSvgPreview, setEditedSvgPreview] = useState<string>("");
+
+  // Load SVG code when result is available and format is SVG
+  useEffect(() => {
+    if (resultUrl && format === "svg") {
+      fetch(resultUrl)
+        .then((res) => res.text())
+        .then((text) => {
+          setSvgCode(text);
+          setEditedSvgPreview(resultUrl);
+        })
+        .catch((err) => {
+          console.error("Failed to load SVG code:", err);
+        });
+    }
+  }, [resultUrl, format]);
 
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -77,8 +103,36 @@ export function ImageConverter() {
     }
   };
 
+  const handleSvgCodeChange = (newCode: string) => {
+    setSvgCode(newCode);
+    // Create a new blob URL for the edited SVG
+    try {
+      const blob = new Blob([newCode], { type: "image/svg+xml" });
+      if (editedSvgPreview && editedSvgPreview !== resultUrl) {
+        URL.revokeObjectURL(editedSvgPreview);
+      }
+      const newPreviewUrl = URL.createObjectURL(blob);
+      setEditedSvgPreview(newPreviewUrl);
+    } catch (err) {
+      console.error("Failed to update SVG preview:", err);
+      toast.error("Invalid SVG code");
+    }
+  };
+
   const handleDownload = () => {
-    if (resultUrl) {
+    if (format === "svg" && svgCode) {
+      // Download the edited SVG code
+      const blob = new Blob([svgCode], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `converted.${format}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("Download started");
+    } else if (resultUrl) {
       const link = document.createElement("a");
       link.href = resultUrl;
       link.download = `converted.${format}`;
@@ -90,12 +144,18 @@ export function ImageConverter() {
   };
 
   const handleReset = () => {
+    // Clean up edited SVG preview URL
+    if (editedSvgPreview && editedSvgPreview !== resultUrl) {
+      URL.revokeObjectURL(editedSvgPreview);
+    }
     reset();
     setFormat("png");
     setRemoveBg(false);
     setQuality(90);
     setSliderValue(50);
     setColorVectorization(false);
+    setSvgCode("");
+    setEditedSvgPreview("");
   };
 
   return (
@@ -271,49 +331,74 @@ export function ImageConverter() {
           <CardContent className="space-y-6">
             {/* Before/After Comparison Slider */}
             {previewAfter ? (
-              <div className="space-y-4">
-                <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-lg">
-                  <div className="relative h-full w-full">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={previewBefore}
-                        alt="Before"
-                        fill
-                        className="object-contain"
+              <div className="grid gap-6 lg:grid-cols-2">
+                {/* Before/After Slider */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold">
+                    Before/After Comparison
+                  </h3>
+                  <div className="bg-muted relative aspect-video w-full overflow-hidden rounded-lg">
+                    <div className="relative h-full w-full">
+                      <div className="absolute inset-0">
+                        <Image
+                          src={previewBefore}
+                          alt="Before"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div
+                        className="absolute inset-0 overflow-hidden"
+                        style={{
+                          clipPath: `inset(0 ${100 - sliderValue}% 0 0)`,
+                        }}
+                      >
+                        <Image
+                          src={previewAfter}
+                          alt="After"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div
+                        className="bg-primary absolute inset-y-0 z-10 w-1 cursor-ew-resize"
+                        style={{ left: `${sliderValue}%` }}
+                      >
+                        <div className="bg-primary border-background absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 shadow-lg" />
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={sliderValue}
+                        onChange={(e) => setSliderValue(Number(e.target.value))}
+                        className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
                       />
                     </div>
-                    <div
-                      className="absolute inset-0 overflow-hidden"
-                      style={{
-                        clipPath: `inset(0 ${100 - sliderValue}% 0 0)`,
-                      }}
-                    >
-                      <Image
-                        src={previewAfter}
-                        alt="After"
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <div
-                      className="bg-primary absolute inset-y-0 z-10 w-1 cursor-ew-resize"
-                      style={{ left: `${sliderValue}%` }}
-                    >
-                      <div className="bg-primary border-background absolute top-1/2 left-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 shadow-lg" />
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={sliderValue}
-                      onChange={(e) => setSliderValue(Number(e.target.value))}
-                      className="absolute inset-0 z-20 h-full w-full cursor-ew-resize opacity-0"
-                    />
+                  </div>
+                  <div className="text-muted-foreground flex items-center justify-between text-sm">
+                    <span>Before</span>
+                    <span>After</span>
                   </div>
                 </div>
-                <div className="text-muted-foreground flex items-center justify-between text-sm">
-                  <span>Before</span>
-                  <span>After (Converted)</span>
+
+                {/* Full Converted Image Preview */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold">Converted Image</h3>
+                    <Badge variant="secondary">{format.toUpperCase()}</Badge>
+                  </div>
+                  <div className="bg-muted border-primary/20 relative aspect-video w-full overflow-hidden rounded-lg border-2">
+                    <Image
+                      src={editedSvgPreview || previewAfter}
+                      alt="Converted Image Preview"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="text-muted-foreground text-center text-xs">
+                    This is your converted image. Click Download to save it.
+                  </p>
                 </div>
               </div>
             ) : (
@@ -326,27 +411,76 @@ export function ImageConverter() {
                 />
               </div>
             )}
+          </CardContent>
+        </Card>
+      )}
 
-            {/* Full Converted Image Preview */}
-            {previewAfter && (
+      {/* SVG Code Editor */}
+      {format === "svg" && svgCode && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Code className="h-5 w-5" />
+              Edit SVG Code
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground text-sm">
+              You can edit the SVG code below to customize colors, styles, or
+              any other SVG attributes before downloading.
+            </p>
+            <div className="grid gap-4 lg:grid-cols-2">
+              {/* Code Editor */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold">Converted Image</h3>
-                  <Badge variant="secondary">{format.toUpperCase()}</Badge>
+                  <label className="text-sm font-medium">SVG Code</label>
+                  <Badge variant="outline" className="text-xs">
+                    Live Preview
+                  </Badge>
                 </div>
-                <div className="bg-muted border-primary/20 relative aspect-video w-full overflow-hidden rounded-lg border-2">
+                <div className="overflow-hidden rounded-md border">
+                  <Editor
+                    height="500px"
+                    language="xml"
+                    value={svgCode}
+                    onChange={(value) => handleSvgCodeChange(value || "")}
+                    theme={theme === "dark" ? "vs-dark" : "light"}
+                    options={{
+                      minimap: { enabled: false },
+                      fontSize: 14,
+                      lineNumbers: "on",
+                      scrollBeyondLastLine: false,
+                      wordWrap: "on",
+                      automaticLayout: true,
+                      formatOnPaste: true,
+                      formatOnType: true,
+                      tabSize: 2,
+                      colorDecorators: true,
+                      folding: true,
+                      bracketPairColorization: {
+                        enabled: true,
+                      },
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Live Preview */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Live Preview</label>
+                <div className="bg-muted border-primary/20 relative h-[500px] w-full overflow-hidden rounded-lg border-2">
                   <Image
-                    src={previewAfter}
-                    alt="Converted Image Preview"
+                    src={editedSvgPreview || previewAfter || ""}
+                    alt="Live SVG Preview"
                     fill
                     className="object-contain"
                   />
                 </div>
                 <p className="text-muted-foreground text-center text-xs">
-                  This is your converted image. Click Download to save it.
+                  Changes are reflected in real-time
                 </p>
               </div>
-            )}
+            </div>
           </CardContent>
         </Card>
       )}
