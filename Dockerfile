@@ -19,7 +19,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-RUN adduser --system --uid 1001 nextjs
+RUN useradd --system --uid 1001 --no-create-home nextjs
 RUN mkdir .next && chown nextjs:bun .next
 
 COPY --from=builder /app/public ./public
