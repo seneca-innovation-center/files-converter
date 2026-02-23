@@ -11,7 +11,7 @@ export function GitHubStarButton() {
       className="bg-background/80 hover:bg-background/90 shadow-lg backdrop-blur-sm"
       onClick={() => {
         window.open(
-          "https://github.com/mohamedboukari/files-converter",
+          "https://github.com/1devspace/files-converter",
           "_blank",
           "noopener,noreferrer",
         );

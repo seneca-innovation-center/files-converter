@@ -66,8 +66,8 @@ export function ImageConverter() {
           setSvgCode(text);
           setEditedSvgPreview(resultUrl);
         })
-        .catch((err) => {
-          console.error("Failed to load SVG code:", err);
+        .catch(() => {
+          toast.error("Failed to load SVG code");
         });
     }
   }, [resultUrl, format]);
@@ -113,8 +113,7 @@ export function ImageConverter() {
       }
       const newPreviewUrl = URL.createObjectURL(blob);
       setEditedSvgPreview(newPreviewUrl);
-    } catch (err) {
-      console.error("Failed to update SVG preview:", err);
+    } catch (_err) {
       toast.error("Invalid SVG code");
     }
   };

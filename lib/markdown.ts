@@ -69,7 +69,7 @@ export const createMarkup = (Htmltext: string): { __html: string } => {
   // Serialize the modified HTML back to a string
   return { __html: doc.body.innerHTML };
 };
-export function isRtl(text: string): boolean {
+function isRtl(text: string): boolean {
   // Remove punctuation, numbers, and symbols globally
   // eslint-disable-next-line no-useless-escape
   const cleanedText = text.replace(/[\s0-9!@#\$%\^\&*\)\(+=._-]+/g, "");

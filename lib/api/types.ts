@@ -210,10 +210,6 @@ export interface TrimVideoOptions {
   targetFormat?: string;
 }
 
-export interface MergeVideosOptions {
-  files: File[];
-}
-
 export interface ExtractFrameOptions {
   time?: number;
   frameNumber?: number;

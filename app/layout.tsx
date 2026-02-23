@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     description:
       "Free, fast, and secure file conversion. Convert images, 3D models, videos, documents, and more.",
     images: ["/og-image.png"],
-    creator: "@mohamedboukari",
+    creator: "@1devspace",
   },
   robots: {
     index: true,
