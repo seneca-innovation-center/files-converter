@@ -74,7 +74,7 @@ A beautiful, modern, and open-source file converter built with Next.js 14+, supp
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/mohamedboukari/files-converter.git
+   git clone https://github.com/1devspace/files-converter.git
    cd files-converter
    ```
 
@@ -287,7 +287,7 @@ This downloads the default 'base' model. Models are stored locally and used for 
 - `POST /api/media/subtitles` - Extract or embed subtitles
 - `POST /api/media/transcribe` - Transcribe video to text
 
-See the [backend repository](https://github.com/mohamedboukari/files-converter-api) for API documentation.
+See the [backend repository](https://github.com/1devspace/files-converter-api) for API documentation.
 
 ## 🎨 Customization
 

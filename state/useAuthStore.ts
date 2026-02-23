@@ -124,8 +124,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
               setRole(userData.role || "user");
             }
           }
-        } catch (error) {
-          console.error("Failed to fetch user role:", error);
+        } catch (_error) {
           setRole("user"); // Default role
         }
       } else {
@@ -133,8 +132,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
         setSession(null);
         setRole(null);
       }
-    } catch (error) {
-      console.error("Failed to initialize auth:", error);
+    } catch (_error) {
       setUser(null);
       setSession(null);
       setRole(null);
@@ -148,8 +146,8 @@ export const useAuthStore = create<AuthState & AuthActions>((set, get) => ({
 
     try {
       await authClient.signOut();
-    } catch (error) {
-      console.error("Failed to sign out:", error);
+    } catch (_error) {
+      // Sign out failed silently; clear local state regardless
     } finally {
       setUser(null);
       setSession(null);
