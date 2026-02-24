@@ -60,13 +60,18 @@ NEXT_PUBLIC_BACKEND_URL=https://api.converter.pelonis.seneca.center
 NEXT_PUBLIC_SITE_URL=https://converter.pelonis.seneca.center
 EOF
 
-# Build and start the container
-docker build -t files-converter .
+# Build with env vars baked in
+set -a && source .env && set +a
+docker build \
+  --build-arg NEXT_PUBLIC_BACKEND_URL="$NEXT_PUBLIC_BACKEND_URL" \
+  --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+  -t files-converter .
+
+# Start the container
 docker run -d \
   --name files-converter \
   --restart unless-stopped \
   -p 4000:4000 \
-  --env-file /home/pelonis/files-converter/.env \
   --log-driver json-file \
   --log-opt max-size=50m \
   --log-opt max-file=5 \
@@ -103,14 +108,17 @@ bun run release  →  push tag  →  Release workflow  →  GitHub Release  → 
 The deploy workflow runs the following on the server:
 
 ```bash
-docker build -t files-converter .
+set -a && source .env && set +a
+docker build \
+  --build-arg NEXT_PUBLIC_BACKEND_URL="$NEXT_PUBLIC_BACKEND_URL" \
+  --build-arg NEXT_PUBLIC_SITE_URL="$NEXT_PUBLIC_SITE_URL" \
+  -t files-converter .
 docker stop files-converter 2>/dev/null || true
 docker rm files-converter 2>/dev/null || true
 docker run -d \
   --name files-converter \
   --restart unless-stopped \
   -p 4000:4000 \
-  --env-file /home/pelonis/files-converter/.env \
   --log-driver json-file \
   --log-opt max-size=50m \
   --log-opt max-file=5 \
