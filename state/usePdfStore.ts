@@ -158,7 +158,9 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "application/pdf",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -233,7 +235,9 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "application/pdf",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -304,7 +308,9 @@ export const usePdfStore = create<PdfState & PdfActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "application/pdf",
       });
       const resultUrl = URL.createObjectURL(blob);
 

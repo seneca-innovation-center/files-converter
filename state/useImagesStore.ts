@@ -172,7 +172,9 @@ export const useImagesStore = create<ImageState & ImageActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "image/png",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "image/png",
       });
       const resultUrl = URL.createObjectURL(blob);
 
