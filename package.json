@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "knip": "knip",
+    "lint:knip": "knip",
+    "typecheck": "tsc --noEmit",
     "release": "bumpp package.json"
   },
   "dependencies": {
