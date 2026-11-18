@@ -158,7 +158,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "video/mp4",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "video/mp4",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -233,7 +235,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "audio/mpeg",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "audio/mpeg",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -308,7 +312,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "image/png",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "image/png",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -384,7 +390,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "video/mp4",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "video/mp4",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -459,7 +467,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "image/png",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "image/png",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -542,7 +552,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "text/plain",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "text/plain",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -621,7 +633,9 @@ export const useMediaStore = create<MediaState & MediaActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "text/plain",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "text/plain",
       });
       const resultUrl = URL.createObjectURL(blob);
 

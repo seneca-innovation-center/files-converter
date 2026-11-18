@@ -68,7 +68,9 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "image/png",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "image/png",
       });
       const resultUrl = URL.createObjectURL(blob);
 
@@ -108,7 +110,9 @@ export const useQRStore = create<QRState & QRActions>((set) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "image/png",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "image/png",
       });
       const resultUrl = URL.createObjectURL(blob);
 

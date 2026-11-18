@@ -121,7 +121,7 @@ export const usePresentationsStore = create<
 
       const blob = new Blob([response.data], {
         type:
-          response.headers["content-type"] ||
+          (response.headers["content-type"] as string | undefined) ||
           "application/vnd.openxmlformats-officedocument.presentationml.presentation",
       });
       const resultUrl = URL.createObjectURL(blob);
@@ -200,7 +200,9 @@ export const usePresentationsStore = create<
       );
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/pdf",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "application/pdf",
       });
       const resultUrl = URL.createObjectURL(blob);
 

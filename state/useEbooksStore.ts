@@ -116,7 +116,9 @@ export const useEbooksStore = create<EbooksState & EbooksActions>(
         });
 
         const blob = new Blob([response.data], {
-          type: response.headers["content-type"] || "application/epub+zip",
+          type:
+            (response.headers["content-type"] as string | undefined) ||
+            "application/epub+zip",
         });
         const resultUrl = URL.createObjectURL(blob);
 
@@ -190,7 +192,9 @@ export const useEbooksStore = create<EbooksState & EbooksActions>(
         });
 
         const blob = new Blob([response.data], {
-          type: response.headers["content-type"] || "application/pdf",
+          type:
+            (response.headers["content-type"] as string | undefined) ||
+            "application/pdf",
         });
         const resultUrl = URL.createObjectURL(blob);
 

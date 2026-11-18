@@ -141,7 +141,7 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
 
         const blob = new Blob([response.data], {
           type:
-            response.headers["content-type"] ||
+            (response.headers["content-type"] as string | undefined) ||
             (options.targetFormat === "pdf" ? "application/pdf" : "text/html"),
         });
         const resultUrl = URL.createObjectURL(blob);
@@ -218,7 +218,9 @@ export const useMarkdownStore = create<MarkdownState & MarkdownActions>(
         );
 
         const blob = new Blob([response.data], {
-          type: response.headers["content-type"] || "text/markdown",
+          type:
+            (response.headers["content-type"] as string | undefined) ||
+            "text/markdown",
         });
         const resultUrl = URL.createObjectURL(blob);
 

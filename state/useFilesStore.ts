@@ -164,7 +164,9 @@ export const useFilesStore = create<FilesState & FilesActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "application/octet-stream",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "application/octet-stream",
       });
       const resultUrl = URL.createObjectURL(blob);
 

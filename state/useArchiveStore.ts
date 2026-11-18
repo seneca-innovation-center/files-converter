@@ -137,7 +137,9 @@ export const useArchiveStore = create<ArchiveState & ArchiveActions>(
         });
 
         const blob = new Blob([response.data], {
-          type: response.headers["content-type"] || "application/zip",
+          type:
+            (response.headers["content-type"] as string | undefined) ||
+            "application/zip",
         });
         const resultUrl = URL.createObjectURL(blob);
 

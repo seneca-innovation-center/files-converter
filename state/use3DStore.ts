@@ -166,7 +166,9 @@ export const use3DStore = create<ThreeDState & ThreeDActions>((set, get) => ({
       });
 
       const blob = new Blob([response.data], {
-        type: response.headers["content-type"] || "model/gltf-binary",
+        type:
+          (response.headers["content-type"] as string | undefined) ||
+          "model/gltf-binary",
       });
       const resultUrl = URL.createObjectURL(blob);
 
