@@ -14,11 +14,11 @@ Configure these in **Settings → Secrets and variables → Actions**:
 
 | Secret | Example | Description |
 |--------|---------|-------------|
-| `SSH_HOST` | `192.168.1.100` or `pelonis` | Server hostname or IP |
-| `SSH_USER` | `pelonis` | SSH username |
+| `SSH_HOST` | `203.0.113.10` or `deploy.example.com` | Server hostname or IP |
+| `SSH_USER` | `deploy` | SSH username |
 | `SSH_KEY` | *(see below)* | Private SSH key (full PEM content) |
 | `SSH_PORT` | `22` | SSH port (defaults to 22) |
-| `DEPLOY_PATH` | `/home/pelonis/files-converter` | Absolute path to the project on the server |
+| `DEPLOY_PATH` | `/home/deploy/files-converter` | Absolute path to the project on the server |
 
 ### SSH_KEY
 
@@ -38,7 +38,7 @@ To generate a deploy key:
 ssh-keygen -t ed25519 -C "github-deploy" -f ~/.ssh/deploy_key
 
 # Copy the public key to the server
-ssh-copy-id -i ~/.ssh/deploy_key.pub pelonis@pelonis
+ssh-copy-id -i ~/.ssh/deploy_key.pub deploy@deploy.example.com
 
 # Copy the private key content — paste this into GitHub Secrets as SSH_KEY
 cat ~/.ssh/deploy_key
@@ -48,16 +48,16 @@ cat ~/.ssh/deploy_key
 
 ```bash
 # SSH into the server
-ssh pelonis@pelonis
+ssh deploy@deploy.example.com
 
 # Clone the repo
-git clone https://github.com/1devspace/files-converter.git /home/pelonis/files-converter
-cd /home/pelonis/files-converter
+git clone https://github.com/1devspace/files-converter.git /home/deploy/files-converter
+cd /home/deploy/files-converter
 
 # Create the .env file
 cat > .env << 'EOF'
-NEXT_PUBLIC_BACKEND_URL=https://api.converter.pelonis.seneca.center
-NEXT_PUBLIC_SITE_URL=https://converter.pelonis.seneca.center
+NEXT_PUBLIC_BACKEND_URL=https://api.converter.example.com
+NEXT_PUBLIC_SITE_URL=https://converter.example.com
 EOF
 
 # Build with env vars baked in
@@ -136,8 +136,8 @@ docker run -d \
 
 | URL | Service |
 |-----|---------|
-| `converter.pelonis.seneca.center` | Frontend |
-| `api.converter.pelonis.seneca.center` | Backend API |
+| `converter.example.com` | Frontend |
+| `api.converter.example.com` | Backend API |
 
 ## Docker Commands
 
@@ -163,7 +163,7 @@ docker stop files-converter
 Edit the `.env` file on the server and restart the container:
 
 ```bash
-ssh pelonis@pelonis
-nano /home/pelonis/files-converter/.env
+ssh deploy@deploy.example.com
+nano /home/deploy/files-converter/.env
 docker restart files-converter
 ```
